@@ -49,21 +49,70 @@ int get_coords(int min, int max) {
 	} else return 0;
 }
 
+#define max_letters 10
+
+int *arr_eq_to(int arr[max_letters]) {
+	int ans[max_letters];
+	for (int i=0; i<max_letters; i++) ans[i] = arr[i];
+	return ans;
+}
+
 int main() {
 	InitWindow(X,Y, "Erma");
 	SetTargetFPS(60);		
 
+	char input[max_letters];
+	int *numbs[max_letters];
+	int letter_count = 0;
+
+	int frames_count = 0;
+
+	Rectangle box = {40, Y - 70, 330, 50};
+	bool on_text = false;
+
 	while (!WindowShouldClose()) {
+		if (CheckCollisionPointRec(GetMousePosition(), box)) on_text = true;
+        else on_text = false;
+
+		if (on_text) {
+			SetMouseCursor(MOUSE_CURSOR_IBEAM);
+			int key = GetCharPressed();
+
+			while (key > 0) {
+				if ((key >= 32) && (key <= 125) && letter_count < max_letters) {
+					input[letter_count] = (char)key;
+					input[letter_count + 1] = '\0';
+					letter_count++;
+				}
+				key = GetCharPressed();
+			}
+			if (IsKeyPressed(KEY_BACKSPACE)) {
+				letter_count--;
+				if (letter_count < 0) letter_count = 0;
+				input[letter_count] = '\0';
+			} else if (IsKeyPressed(KEY_ENTER)) numbs = arr_eq_to(input);
+		} else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
+		if (on_text) frames_count++;
+		else frames_count = 0;
+
 		BeginDrawing();
 		ClearBackground(GRAY);
-
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
+
+		DrawRectangleRec(box, LIGHTGRAY);
+
+		if (on_text) DrawRectangleLines((int)box.x, (int)box.y, (int)box.width, (int)box.height, RED);
+        else DrawRectangleLines((int)box.x, (int)box.y, (int)box.width, (int)box.height, DARKGRAY);
+
+		DrawText(input, (int)box.x + 5, (int)box.y + 8, 40, MAROON);
 
 		draw_points();
 		get_coords(1, 2);
 
 		EndDrawing();
 	}
-	print_arr();
-	for (int i=0; i<2; i++) printf("%d, %d\n", coords[i][0], coords[i][1]);
+	/* print_arr(); */
+	/* for (int i=0; i<2; i++) printf("%d, %d\n", coords[i][0], coords[i][1]); */
+	for (int i=0; i<max_letters; i++) printf("%c\n", numbs[i]);
 }
