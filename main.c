@@ -19,7 +19,7 @@ void draw_points() {
 			int y = 170 + (2*R+10)*j;
 
 			DrawCircle(x, y, R, (Color){255,255,0,90});
-			DrawText(TextFormat("%d", count+1), x - 6, y - 10, 20,WHITE);
+			DrawText(TextFormat("%d", count), x - 6, y - 10, 20,WHITE);
 
 			pos[count][0] = count;
 			pos[count][1] = x;
@@ -37,6 +37,18 @@ void print_arr() {
 	}
 }
 
+int coords[2][2];
+int get_coords(int min, int max) {
+	if (pos[min][2] == pos[max][2]) {
+		coords[0][0] = pos[min][1];
+		coords[0][1] = pos[min][2];
+
+		coords[1][0] = pos[max][1];
+		coords[1][1] = pos[max][2];
+		return 1;
+	} else return 0;
+}
+
 int main() {
 	InitWindow(X,Y, "Erma");
 	SetTargetFPS(60);		
@@ -48,8 +60,10 @@ int main() {
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
 		draw_points();
+		get_coords(1, 2);
 
 		EndDrawing();
 	}
 	print_arr();
+	for (int i=0; i<2; i++) printf("%d, %d\n", coords[i][0], coords[i][1]);
 }
