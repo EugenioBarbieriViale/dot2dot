@@ -8,7 +8,7 @@
 
 #define N 40
 #define border 100
-#define R 10
+#define R 5
 
 float rand_float() {
 	return (float)rand() / (float)RAND_MAX;
@@ -42,7 +42,6 @@ bool clicked(float x, float y) {
 	Vector2 current_pos;
 	current_pos.x = x;
 	current_pos.y = y;
-	/* printf("%d\n", CheckCollisionPointCircle(mouse_pos, current_pos, R) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)); */
 	if (CheckCollisionPointCircle(mouse_pos, current_pos, R) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) return true;
 	else return false;
 }
@@ -54,15 +53,28 @@ int main() {
 	srand(time(NULL));
 	init_pos();
 
+	int to_connect[N][2];
+	int nodes = 0;
+
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		ClearBackground(GRAY);
 
 		draw_points();
 		for (int i=0; i<N; i++)	{
-			if (clicked(pos[i][0], pos[i][1])) printf("FOUND\n");
-		}
+			int x = pos[i][0];
+			int y = pos[i][1];
+			if (clicked(x,y)) {
+				printf("x %d, y %d\n", x,y);
+				to_connect[nodes][0] = x;
+				to_connect[nodes][1] = y;
 
+				nodes++;
+			}
+		}
+		for (int i=1; i<nodes; i++)	{
+			DrawLine(to_connect[i-1][0], to_connect[i-1][1], to_connect[i][0],to_connect[i][1], RED);
+		}
 		EndDrawing();
 	}
 }
