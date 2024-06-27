@@ -31,9 +31,10 @@ void draw_points() {
 		float y = pos[i][1];
 
 		DrawCircle(x, y, R, BLACK);
-		DrawRectangleLines(border, border, X - 2*border, Y - 2*border, RED);
 		if (x <= 0 || x >= X || y <= 0 || y >= Y) printf("ERROR at %d\n", i);
-		DrawText(TextFormat("%d", i), x+4, y+4, 30, RED);
+
+		DrawRectangleLines(border, border, X - 2*border, Y - 2*border, RED);
+		/* DrawText(TextFormat("%d", i), x+4, y+4, 30, RED); */
 	}
 }
 
@@ -53,28 +54,45 @@ int main() {
 	srand(time(NULL));
 	init_pos();
 
-	int to_connect[N][2];
-	int nodes = 0;
+	int size = 20;
+	Rectangle yellow = {border, Y - border - size, size, size};
+	Rectangle blue = {X - border - size, border, size, size};
+
+	float yellow_path[N][2] = {
+		{yellow.x + size / 2, yellow.y + size / 2}
+	};
+
+	float blue_path[N][2] = {
+		{blue.x - size / 2, yellow.y + size / 2}
+	};
+
+	int yellow_nodes = 1;
+	int blue_nodes = 1;
 
 	while (!WindowShouldClose()) {
+		for (int i=0; i<N; i++)	{
+			float x = pos[i][0];
+			float y = pos[i][1];
+			if (clicked(x,y)) {
+				printf("x %f, y %f\n", x,y);
+				yellow_path[yellow_nodes][0] = x;
+				yellow_path[yellow_nodes][1] = y;
+
+				yellow_nodes++;
+			}
+		}
+
 		BeginDrawing();
 		ClearBackground(GRAY);
 
 		draw_points();
-		for (int i=0; i<N; i++)	{
-			int x = pos[i][0];
-			int y = pos[i][1];
-			if (clicked(x,y)) {
-				printf("x %d, y %d\n", x,y);
-				to_connect[nodes][0] = x;
-				to_connect[nodes][1] = y;
+		DrawRectangleRec(yellow, YELLOW);
+		DrawRectangleRec(blue, BLUE);
 
-				nodes++;
-			}
+		for (int i=1; i<yellow_nodes; i++)	{
+			DrawLine(yellow_path[i-1][0], yellow_path[i-1][1], yellow_path[i][0], yellow_path[i][1], YELLOW);
 		}
-		for (int i=1; i<nodes; i++)	{
-			DrawLine(to_connect[i-1][0], to_connect[i-1][1], to_connect[i][0],to_connect[i][1], RED);
-		}
+
 		EndDrawing();
 	}
 }
