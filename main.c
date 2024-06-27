@@ -31,88 +31,56 @@ void draw_points() {
 	}
 }
 
-void print_arr() {
-	for (int i=0; i<21; i++) {
-		printf("%d. x: %d  y: %d\n", pos[i][0], pos[i][1], pos[i][2]);
+void draw_lines(int nodes, int to_connect[21][2]) {
+	for (int i=1; i<nodes; i++)	{
+		Vector2 p1 = {to_connect[i-1][0], to_connect[i-1][1]};
+		Vector2 p2 = {to_connect[i][0], to_connect[i][1]};
+
+		if (p1.x > p2.x) {
+			p1.x += 3*R/4;
+			p2.x -= 3*R/4;
+		} else {
+			p1.x -= 3*R/4;
+			p2.x += 3*R/4;
+		}
+		
+		if (p1.y == p2.y && i%2==1) DrawLineEx(p1, p2, 5, RED);
 	}
 }
 
-int coords[2][2];
-int get_coords(int min, int max) {
-	if (pos[min][2] == pos[max][2]) {
-		coords[0][0] = pos[min][1];
-		coords[0][1] = pos[min][2];
-
-		coords[1][0] = pos[max][1];
-		coords[1][1] = pos[max][2];
-		return 1;
-	} else return 0;
-}
-
-#define max_letters 10
-
-int *arr_eq_to(int arr[max_letters]) {
-	int ans[max_letters];
-	for (int i=0; i<max_letters; i++) ans[i] = arr[i];
-	return ans;
+bool clicked(float x, float y) {
+	Vector2 mouse_pos = GetMousePosition();
+	Vector2 current_pos = {x,y};
+	if (CheckCollisionPointCircle(mouse_pos, current_pos, R) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) return true;
+	else return false;
 }
 
 int main() {
-	InitWindow(X,Y, "Erma");
+	InitWindow(X,Y, "dot2dot");
 	SetTargetFPS(60);		
 
-	char input[max_letters];
-	int *numbs[max_letters];
-	int letter_count = 0;
-
-	int frames_count = 0;
-
-	Rectangle box = {40, Y - 70, 330, 50};
-	bool on_text = false;
+	int nodes = 0;
+	int to_connect[21][2];
 
 	while (!WindowShouldClose()) {
-		if (CheckCollisionPointRec(GetMousePosition(), box)) on_text = true;
-        else on_text = false;
+		for (int i=0; i<21; i++)	{
+			float x = pos[i][1];
+			float y = pos[i][2];
+			if (clicked(x,y)) {
+				to_connect[nodes][0] = x;
+				to_connect[nodes][1] = y;
 
-		if (on_text) {
-			SetMouseCursor(MOUSE_CURSOR_IBEAM);
-			int key = GetCharPressed();
-
-			while (key > 0) {
-				if ((key >= 32) && (key <= 125) && letter_count < max_letters) {
-					input[letter_count] = (char)key;
-					input[letter_count + 1] = '\0';
-					letter_count++;
-				}
-				key = GetCharPressed();
+				nodes++;
 			}
-			if (IsKeyPressed(KEY_BACKSPACE)) {
-				letter_count--;
-				if (letter_count < 0) letter_count = 0;
-				input[letter_count] = '\0';
-			} else if (IsKeyPressed(KEY_ENTER)) numbs = arr_eq_to(input);
-		} else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-		if (on_text) frames_count++;
-		else frames_count = 0;
+		}
 
 		BeginDrawing();
 		ClearBackground(GRAY);
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
-		DrawRectangleRec(box, LIGHTGRAY);
-
-		if (on_text) DrawRectangleLines((int)box.x, (int)box.y, (int)box.width, (int)box.height, RED);
-        else DrawRectangleLines((int)box.x, (int)box.y, (int)box.width, (int)box.height, DARKGRAY);
-
-		DrawText(input, (int)box.x + 5, (int)box.y + 8, 40, MAROON);
-
 		draw_points();
-		get_coords(1, 2);
+		draw_lines(nodes, to_connect);
 
 		EndDrawing();
 	}
-	/* print_arr(); */
-	/* for (int i=0; i<2; i++) printf("%d, %d\n", coords[i][0], coords[i][1]); */
-	for (int i=0; i<max_letters; i++) printf("%c\n", numbs[i]);
 }
