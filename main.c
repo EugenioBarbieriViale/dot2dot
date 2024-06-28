@@ -49,11 +49,13 @@ void draw_lines(int nodes, int erased[21][3]) {
 		/* printf("%d, %d\n", dots[i-1][0], dots[i-1][1]); */
 
 		if (p1.y == p2.y && i%2==1) {
-			dots[i-1][0] = erased[i-1][2];
-			dots[i-1][1] = erased[i][2];
+			dots[c][0] = erased[i-1][2];
+			dots[c][1] = erased[i][2];
 
 			DrawLineEx(p1, p2, 5, RED);
-		}
+		} else c--;
+
+		c++;
 	}
 }
 
@@ -65,11 +67,13 @@ bool clicked(int x, int y) {
 }
 
 int count_erased_dots() {
-	printf("--------------\n");
+	printf("-----------------\n");
+	int n = 0;
 	for (int i=0; i<21; i++) {
-		printf("%d: %d, %d\n", i, dots[i][0], dots[i][1]);
+		printf("%d: %d, %d, n: %d\n", i, dots[i][0], dots[i][1], n);
+		n += (dots[i][0] - dots[i][1] + 1);
 	}
-	return 0;
+	return n;
 }
 
 int main() {
