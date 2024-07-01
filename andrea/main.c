@@ -56,9 +56,7 @@ void draw_points() {
 
 bool clicked(float x, float y) {
 	Vector2 mouse_pos = GetMousePosition();
-	Vector2 current_pos;
-	current_pos.x = x;
-	current_pos.y = y;
+	Vector2 current_pos = {x, y};
 	if (CheckCollisionPointCircle(mouse_pos, current_pos, R) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) return true;
 	else return false;
 }
@@ -95,10 +93,10 @@ void create_path() {
 }
 
 void draw_lines() {
-	for (int i=1; i<yellow_nodes; i++)	{
+	for (int i=1; i<yellow_nodes; i++) {
 		DrawLine(yellow_path[i-1][0], yellow_path[i-1][1], yellow_path[i][0], yellow_path[i][1], YELLOW);
 	}
-	for (int i=1; i<blue_nodes; i++)	{
+	for (int i=1; i<blue_nodes; i++) {
 		DrawLine(blue_path[i-1][0], blue_path[i-1][1], blue_path[i][0], blue_path[i][1], BLUE);
 	}
 }
@@ -116,6 +114,7 @@ int main() {
 		BeginDrawing();
 		ClearBackground(GRAY);
 
+		choose_turn(turn);
 		draw_points();
 		draw_lines();
 
