@@ -101,6 +101,7 @@ void draw_lines() {
 	}
 }
 
+
 int main() {
 	InitWindow(X,Y, "points");
 	SetTargetFPS(60);		
@@ -123,4 +124,6 @@ int main() {
 		
 		EndDrawing();
 	}
+	CloseWindow();
+	return 0;
 }
