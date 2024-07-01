@@ -7,8 +7,7 @@
 
 # define R 40
 
-int pos[21][3];
-int dots[21][2];
+int pos[21][2];
 
 void draw_points(void) {
 	int n = 6;
@@ -24,7 +23,6 @@ void draw_points(void) {
 
 			pos[count][0] = x;
 			pos[count][1] = y;
-			pos[count][2] = count;
 
 			count++;
 		}
@@ -32,8 +30,11 @@ void draw_points(void) {
 	}
 }
 
-void draw_lines(int nodes, int erased[21][3]) {
-	int c = 0;
+int length(int arr[]) {
+	return (int)sizeof(arr) / (int)sizeof(arr[0]);
+}
+
+void draw_lines(int nodes, int erased[21][2]) {
 	for (int i=1; i<nodes; i++)	{
 		Vector2 p1 = {erased[i-1][0], erased[i-1][1]};
 		Vector2 p2 = {erased[i][0], erased[i][1]};
@@ -46,16 +47,9 @@ void draw_lines(int nodes, int erased[21][3]) {
 			p2.x += 3*R/4;
 		}
 
-		/* printf("%d, %d\n", dots[i-1][0], dots[i-1][1]); */
-
 		if (p1.y == p2.y && i%2==1) {
-			dots[c][0] = erased[i-1][2];
-			dots[c][1] = erased[i][2];
-
 			DrawLineEx(p1, p2, 5, RED);
-		} else c--;
-
-		c++;
+		}
 	}
 }
 
@@ -66,33 +60,20 @@ bool clicked(int x, int y) {
 	else return false;
 }
 
-int count_erased_dots() {
-	printf("-----------------\n");
-	int n = 0;
-	for (int i=0; i<21; i++) {
-		printf("%d: %d, %d, n: %d\n", i, dots[i][0], dots[i][1], n);
-		n += (dots[i][0] - dots[i][1] + 1);
-	}
-	return n;
-}
-
 int main() {
 	InitWindow(X,Y, "dot2dot");
 	SetTargetFPS(60);		
 
 	int nodes = 0;
-	int erased[21][3];
+	int erased[21][2];
 
 	while (!WindowShouldClose()) {
 		for (int i=0; i<21; i++)	{
 			int x = pos[i][0];
 			int y = pos[i][1];
-			int c = pos[i][2];
 			if (clicked(x,y)) {
 				erased[nodes][0] = x;
 				erased[nodes][1] = y;
-				erased[nodes][2] = c;
-
 				nodes++;
 			}
 		}
@@ -103,7 +84,6 @@ int main() {
 
 		draw_points();
 		draw_lines(nodes, erased);
-		count_erased_dots();
 
 		EndDrawing();
 	}
