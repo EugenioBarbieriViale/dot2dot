@@ -112,11 +112,10 @@ int main() {
 	init_pos();
 
 	while (!WindowShouldClose()) {
+		create_path();
 
 		BeginDrawing();
 		ClearBackground(GRAY);
-
-		create_path();
 
 		draw_points();
 		draw_lines();
