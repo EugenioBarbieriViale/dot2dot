@@ -48,7 +48,6 @@ void draw_points() {
 		float y = pos[i][1];
 
 		DrawCircle(x, y, R, BLACK);
-		if (x <= 0 || x >= X || y <= 0 || y >= Y) printf("ERROR at %d\n", i);
 
 		DrawRectangleLines(border, border, X - 2*border, Y - 2*border, RED);
 		/* DrawText(TextFormat("%d", i), x+4, y+4, 30, RED); */
