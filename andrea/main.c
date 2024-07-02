@@ -52,7 +52,8 @@ int main() {
 	srand(time(NULL));
 	init_pos();
 
-	while (!WindowShouldClose() && !game_over()) {
+	bool quit = false;
+	while (!WindowShouldClose() && !quit) {
 		create_path();
 
 		BeginDrawing();
@@ -67,6 +68,7 @@ int main() {
 
 		DrawText(TextFormat("N: %d", N), X - 90, 10, 30, RED);
 		
+		quit = game_over();
 		EndDrawing();
 	}
 	CloseWindow();
@@ -105,9 +107,14 @@ bool clicked(float x, float y) {
 bool game_over(void) {
 	Vector2 mouse_pos = GetMousePosition();
 
-	if ((CheckCollisionPointRec(mouse_pos, yellow) || CheckCollisionPointRec(mouse_pos, blue)) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	if (CheckCollisionPointRec(mouse_pos, yellow) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		DrawText("BLUE WON", 200,200, 100, BLUE);
 		return true;
-
+	}
+	else if (CheckCollisionPointRec(mouse_pos, blue) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		DrawText("YELLOW WON", 200,200, 100, YELLOW);
+		return true;
+	}
 	else return false;
 }
 
