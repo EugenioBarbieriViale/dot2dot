@@ -14,6 +14,8 @@ const int size = 20;
 const Rectangle yellow = {border, Y - border - size, size, size};
 const Rectangle blue = {X - border - size, border, size, size};
 
+float pos[N][2];
+
 float yellow_path[N][2] = {
 	{yellow.x + size / 2, yellow.y + size / 2}
 };
@@ -31,7 +33,44 @@ float rand_float() {
 	return (float)rand() / (float)RAND_MAX;
 }
 
-float pos[N][2];
+int choose_turn(int turn);
+
+void init_pos();
+void draw_points();
+
+bool clicked(float x, float y);
+void create_path();
+void draw_lines();
+
+
+int main() {
+	InitWindow(X,Y, "points");
+	SetTargetFPS(60);		
+
+	srand(time(NULL));
+	init_pos();
+
+	while (!WindowShouldClose()) {
+		create_path();
+
+		BeginDrawing();
+		ClearBackground(GRAY);
+
+		choose_turn(turn);
+		draw_points();
+		draw_lines();
+
+		DrawRectangleRec(yellow, YELLOW);
+		DrawRectangleRec(blue, BLUE);
+
+		DrawText(TextFormat("N: %d", N), X - 90, 10, 30, RED);
+		
+		EndDrawing();
+	}
+	CloseWindow();
+	return 0;
+}
+
 void init_pos() {
 	for (int i=0; i<N; i++)	{
 		float x = border + rand_float() * (X - border*2);
@@ -99,31 +138,4 @@ void draw_lines() {
 	for (int i=1; i<blue_nodes; i++) {
 		DrawLine(blue_path[i-1][0], blue_path[i-1][1], blue_path[i][0], blue_path[i][1], BLUE);
 	}
-}
-
-
-int main() {
-	InitWindow(X,Y, "points");
-	SetTargetFPS(60);		
-
-	srand(time(NULL));
-	init_pos();
-
-	while (!WindowShouldClose()) {
-		create_path();
-
-		BeginDrawing();
-		ClearBackground(GRAY);
-
-		choose_turn(turn);
-		draw_points();
-		draw_lines();
-
-		DrawRectangleRec(yellow, YELLOW);
-		DrawRectangleRec(blue, BLUE);
-		
-		EndDrawing();
-	}
-	CloseWindow();
-	return 0;
 }
