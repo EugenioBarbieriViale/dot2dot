@@ -35,12 +35,14 @@ float rand_float() {
 
 int choose_turn(int turn);
 
-void init_pos();
-void draw_points();
+void init_pos(void);
+void draw_points(void);
 
 bool clicked(float x, float y);
-void create_path();
-void draw_lines();
+void create_path(void);
+void draw_lines(void);
+
+bool game_over(void);
 
 
 int main() {
@@ -50,7 +52,7 @@ int main() {
 	srand(time(NULL));
 	init_pos();
 
-	while (!WindowShouldClose()) {
+	while (!WindowShouldClose() && !game_over()) {
 		create_path();
 
 		BeginDrawing();
@@ -71,7 +73,7 @@ int main() {
 	return 0;
 }
 
-void init_pos() {
+void init_pos(void) {
 	for (int i=0; i<N; i++)	{
 		float x = border + rand_float() * (X - border*2);
 		float y = border + rand_float() * (Y - border*2);
@@ -81,7 +83,7 @@ void init_pos() {
 	}
 }
 
-void draw_points() {
+void draw_points(void) {
 	for (int i=0; i<N; i++)	{
 		float x = pos[i][0];
 		float y = pos[i][1];
@@ -100,6 +102,15 @@ bool clicked(float x, float y) {
 	else return false;
 }
 
+bool game_over(void) {
+	Vector2 mouse_pos = GetMousePosition();
+
+	if ((CheckCollisionPointRec(mouse_pos, yellow) || CheckCollisionPointRec(mouse_pos, blue)) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		return true;
+
+	else return false;
+}
+
 int choose_turn(int turn) {
 	if (turn % 2 == 0) {
 		DrawText("YELLOW'S TURN", 10, 10, 30, BLACK);
@@ -110,11 +121,13 @@ int choose_turn(int turn) {
 	}
 }
 
-void create_path() {
+void create_path(void) {
 	for (int i=0; i<N; i++)	{
 		float x = pos[i][0];
 		float y = pos[i][1];
 		if (clicked(x,y)) {
+			/* if (yellow_path[yellow_nodes][0] == yellow_path[0][0] && yellow_path[yellow_nodes][1] == yellow_path[0][1]) */
+			/* 	printf("HELLO"); */
 			if (choose_turn(turn) == 0) {
 				yellow_path[yellow_nodes][0] = x;
 				yellow_path[yellow_nodes][1] = y;
@@ -131,7 +144,7 @@ void create_path() {
 	}
 }
 
-void draw_lines() {
+void draw_lines(void) {
 	for (int i=1; i<yellow_nodes; i++) {
 		DrawLine(yellow_path[i-1][0], yellow_path[i-1][1], yellow_path[i][0], yellow_path[i][1], YELLOW);
 	}
