@@ -6,7 +6,7 @@
 #define X 1000
 #define Y 800
 
-#define N 40
+#define N 35
 #define border 100
 #define R 5
 
@@ -133,8 +133,6 @@ void create_path(void) {
 		float x = pos[i][0];
 		float y = pos[i][1];
 		if (clicked(x,y)) {
-			/* if (yellow_path[yellow_nodes][0] == yellow_path[0][0] && yellow_path[yellow_nodes][1] == yellow_path[0][1]) */
-			/* 	printf("HELLO"); */
 			if (choose_turn(turn) == 0) {
 				yellow_path[yellow_nodes][0] = x;
 				yellow_path[yellow_nodes][1] = y;
