@@ -6,7 +6,7 @@
 #define X 1000
 #define Y 800
 
-#define N 35
+#define N 40
 #define border 100
 #define R 5
 
@@ -41,6 +41,8 @@ void draw_points(void);
 bool clicked(float x, float y);
 void create_path(void);
 void draw_lines(void);
+
+bool check_collision(int yellow_nodes);
 
 bool game_over(void);
 
@@ -152,8 +154,36 @@ void create_path(void) {
 void draw_lines(void) {
 	for (int i=1; i<yellow_nodes; i++) {
 		DrawLine(yellow_path[i-1][0], yellow_path[i-1][1], yellow_path[i][0], yellow_path[i][1], YELLOW);
+		/* if (check_collision(yellow_nodes, blue_nodes)) printf("%d COLLISION\n", i); */
+		if (check_collision(i)) printf("%d COLLISION\n", i);
 	}
 	for (int i=1; i<blue_nodes; i++) {
 		DrawLine(blue_path[i-1][0], blue_path[i-1][1], blue_path[i][0], blue_path[i][1], BLUE);
+		if (check_collision(i)) printf("%d COLLISION\n", i);
 	}
+}
+
+bool is_intersecting(Vector2 start1, Vector2 end1, Vector2 start2, Vector2 end2) {
+	float denominator = ((end1.x - start1.x) * (end2.y - start2.y)) - ((end1.y - start1.y) * (end2.x - start2.x));
+    float numerator1 = ((start1.y - start2.y) * (end2.x - start2.x)) - ((start1.x - start2.x) * (end2.y - start2.y));
+    float numerator2 = ((start1.y - start2.y) * (end1.x - start1.x)) - ((start1.x - start2.x) * (end1.y - start1.y));
+
+    if (denominator == 0) return numerator1 == 0 && numerator2 == 0;
+    
+    float r = numerator1 / denominator;
+    float s = numerator2 / denominator;
+
+    return (r > 0 && r < 1) && (s > 0 && s < 1);
+}
+
+bool check_collision(int yellow_nodes) {
+	Vector2 start_yellow = {yellow_path[yellow_nodes-1][0], yellow_path[yellow_nodes-1][1]};
+	Vector2 end_yellow = {yellow_path[yellow_nodes][0], yellow_path[yellow_nodes][1]};
+
+	Vector2 start_blue = {blue_path[yellow_nodes-1][0], blue_path[yellow_nodes-1][1]};
+	Vector2 end_blue = {blue_path[yellow_nodes][0], blue_path[yellow_nodes][1]};
+	/* Vector2 start_blue = {blue_path[blue_nodes-1][0], blue_path[blue_nodes-1][1]}; */
+	/* Vector2 end_blue = {blue_path[blue_nodes][0], blue_path[blue_nodes][1]}; */
+	/* printf("%f, %f\n", start_yellow.x, start_yellow.y); */
+	return (is_intersecting(start_yellow, end_yellow, start_blue, end_blue));
 }
