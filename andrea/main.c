@@ -42,7 +42,7 @@ bool clicked(float x, float y);
 void create_path(void);
 void draw_lines(void);
 
-bool check_collision(int yellow_nodes);
+bool check_collision(int counter);
 
 bool game_over(void);
 
@@ -147,7 +147,7 @@ void create_path(void) {
 
 				blue_nodes++;
 			}
-			if (check_collision(yellow_nodes-1)) printf("Y%d B%d COLLISION\n", yellow_nodes, blue_nodes);
+			if (check_collision(blue_nodes)) printf("Y%d B%d COLLISION\n", yellow_nodes, blue_nodes);
 			turn++;
 		}
 	}
@@ -176,12 +176,12 @@ bool is_intersecting(Vector2 start1, Vector2 end1, Vector2 start2, Vector2 end2)
     return (r > 0 && r < 1) && (s > 0 && s < 1);
 }
 
-bool check_collision(int yellow_nodes) {
-	Vector2 start_yellow = {yellow_path[yellow_nodes-1][0], yellow_path[yellow_nodes-1][1]};
-	Vector2 end_yellow = {yellow_path[yellow_nodes][0], yellow_path[yellow_nodes][1]};
+bool check_collision(int counter) {
+	Vector2 start_yellow = {yellow_path[counter-1][0], yellow_path[counter-1][1]};
+	Vector2 end_yellow = {yellow_path[counter][0], yellow_path[counter][1]};
 
-	Vector2 start_blue = {blue_path[yellow_nodes-1][0], blue_path[yellow_nodes-1][1]};
-	Vector2 end_blue = {blue_path[yellow_nodes][0], blue_path[yellow_nodes][1]};
+	Vector2 start_blue = {blue_path[counter-1][0], blue_path[counter-1][1]};
+	Vector2 end_blue = {blue_path[counter][0], blue_path[counter][1]};
 	/* Vector2 start_blue = {blue_path[blue_nodes-1][0], blue_path[blue_nodes-1][1]}; */
 	/* Vector2 end_blue = {blue_path[blue_nodes][0], blue_path[blue_nodes][1]}; */
 	/* printf("%f, %f\n", start_yellow.x, start_yellow.y); */
