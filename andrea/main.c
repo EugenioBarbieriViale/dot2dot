@@ -65,6 +65,7 @@ int main() {
 		draw_points();
 		draw_lines();
 
+
 		DrawRectangleRec(yellow, YELLOW);
 		DrawRectangleRec(blue, BLUE);
 
@@ -146,6 +147,7 @@ void create_path(void) {
 
 				blue_nodes++;
 			}
+			if (check_collision(yellow_nodes-1)) printf("Y%d B%d COLLISION\n", yellow_nodes, blue_nodes);
 			turn++;
 		}
 	}
@@ -155,11 +157,9 @@ void draw_lines(void) {
 	for (int i=1; i<yellow_nodes; i++) {
 		DrawLine(yellow_path[i-1][0], yellow_path[i-1][1], yellow_path[i][0], yellow_path[i][1], YELLOW);
 		/* if (check_collision(yellow_nodes, blue_nodes)) printf("%d COLLISION\n", i); */
-		if (check_collision(i)) printf("%d COLLISION\n", i);
 	}
 	for (int i=1; i<blue_nodes; i++) {
 		DrawLine(blue_path[i-1][0], blue_path[i-1][1], blue_path[i][0], blue_path[i][1], BLUE);
-		if (check_collision(i)) printf("%d COLLISION\n", i);
 	}
 }
 
