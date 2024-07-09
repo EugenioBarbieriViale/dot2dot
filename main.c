@@ -8,10 +8,15 @@
 # define R 40
 
 int pos[21][2];
-int erased[21][2];
 
-int nodes = 0;
+int human_erased[21][2];
+int machine_erased[21][2];
 int n_erased;
+
+int human_nodes = 0;
+int machine_nodes = 0;
+
+int turn = 0;
 
 void draw_points(void) {
 	int n = 6;
@@ -41,23 +46,32 @@ bool clicked(int x, int y) {
 	else return false;
 }
 
-void erase() {
+int temp = 0;
+void erase(void) {
 	for (int i=0; i<21; i++) {
 		int x = pos[i][0];
 		int y = pos[i][1];
 		if (clicked(x,y)) {
-			erased[nodes][0] = x;
-			erased[nodes][1] = y;
-			nodes++;
+			if (turn % 2 == 0) {
+				human_erased[human_nodes][0] = x;
+				human_erased[human_nodes][1] = y;
+				human_nodes++;
+			} else {
+				machine_erased[machine_nodes][0] = x;
+				machine_erased[machine_nodes][1] = y;
+				machine_nodes++;
+			}
+
+			temp++;
+			if (temp % 2 == 0) turn++;
 		}
 	}
 }
 
-void draw_lines(int nodes, int erased[21][2]) {
-	n_erased = 0;
-	for (int i=1; i<nodes; i++)	{
-		Vector2 p1 = {erased[i-1][0], erased[i-1][1]};
-		Vector2 p2 = {erased[i][0], erased[i][1]};
+void human_lines(void) {
+	for (int i=1; i<human_nodes; i++)	{
+		Vector2 p1 = {human_erased[i-1][0], human_erased[i-1][1]};
+		Vector2 p2 = {human_erased[i][0], human_erased[i][1]};
 
 		if (p1.x > p2.x) {
 			p1.x += 3*R/4;
@@ -72,6 +86,27 @@ void draw_lines(int nodes, int erased[21][2]) {
 			n_erased += (abs(((p1.x - p2.x)/(2*R+20))) + 1);
 		}
 	}
+
+}
+
+void machine_lines(void) {
+	for (int i=1; i<machine_nodes; i++)	{
+		Vector2 p1 = {machine_erased[i-1][0], machine_erased[i-1][1]};
+		Vector2 p2 = {machine_erased[i][0], machine_erased[i][1]};
+
+		if (p1.x > p2.x) {
+			p1.x += 3*R/4;
+			p2.x -= 3*R/4;
+		} else {
+			p1.x -= 3*R/4;
+			p2.x += 3*R/4;
+		}
+
+		if (p1.y == p2.y && i%2==1) {
+			DrawLineEx(p1, p2, 5, BLUE);
+			n_erased += (abs(((p1.x - p2.x)/(2*R+20))) + 1);
+		}
+	}
 }
 
 int main() {
@@ -80,6 +115,7 @@ int main() {
 
 	bool end_game = false;
 	while (!WindowShouldClose() && !end_game) {
+		n_erased = 0;
 		erase();
 
 		BeginDrawing();
@@ -87,7 +123,8 @@ int main() {
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
 		draw_points();
-		draw_lines(nodes, erased);
+		human_lines();
+		machine_lines();
 
 		if (n_erased == 21) end_game = true;
 
