@@ -39,11 +39,40 @@ void draw_points(void) {
 	}
 }
 
+int count_erased(float a, float b) {
+	return (abs(((a - b)/(2*R+20))) + 1);
+}
+
 bool clicked(int x, int y) {
 	Vector2 mouse_pos = GetMousePosition();
 	Vector2 current_pos = {x,y};
 	if (CheckCollisionPointCircle(mouse_pos, current_pos, R) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) return true;
 	else return false;
+}
+
+bool collision(int x1, int x2, int x3, int x4) {
+	if (x1 < x2)
+		if ((x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2))
+			return true;
+		else 
+			return false;
+	else 
+		if ((x3 >= x2 && x3 <= x1) || (x4 >= x2 && x4 <= x1))
+			return true;
+		else 
+			return false;
+}
+
+bool already_erased() {
+	for (int i=0; i<21; i+=2) {
+		for (int j=0; j<21; j+=2) {
+			if (human_erased[i][1] != 0 && machine_erased[i][1] != 0 && machine_erased[j+1][1] != 0)
+				if (machine_erased[i][1] == human_erased[j][1])
+					if (collision(machine_erased[i][0], machine_erased[i+1][0], human_erased[j][0], human_erased[j+1][0]))
+						return true;
+		}
+	}
+	return false;
 }
 
 int temp = 0;
@@ -83,7 +112,7 @@ void human_lines(void) {
 
 		if (p1.y == p2.y && i%2==1) {
 			DrawLineEx(p1, p2, 5, RED);
-			n_erased += (abs(((p1.x - p2.x)/(2*R+20))) + 1);
+			n_erased += count_erased(p1.x, p2.x);
 		}
 	}
 
@@ -104,10 +133,15 @@ void machine_lines(void) {
 
 		if (p1.y == p2.y && i%2==1) {
 			DrawLineEx(p1, p2, 5, BLUE);
-			n_erased += (abs(((p1.x - p2.x)/(2*R+20))) + 1);
+			n_erased += count_erased(p1.x, p2.x);
 		}
 	}
 }
+
+/* void print_erased() { */
+/* 	printf("--------------------------\n"); */
+/* 	for (int i=0; i<21; i++) printf("machine %d, %d, human %d, %d\n", machine_erased[i][0], machine_erased[i][1], human_erased[i][0], human_erased[i][1]); */
+/* } */
 
 int main() {
 	InitWindow(X,Y, "dot2dot");
@@ -121,6 +155,8 @@ int main() {
 		BeginDrawing();
 		ClearBackground(GRAY);
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
+
+		if (already_erased()) DrawText("COLLISION", 20, Y-90, 40, RED);
 
 		draw_points();
 		human_lines();
