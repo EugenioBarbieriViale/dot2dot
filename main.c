@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <raylib.h>
 
+/* TODO:
+ * - implement last one that cancels looses
+ * + make single func that draws lines
+ * + write description of the game in the README.md
+*/
+
 #define X 1000
 #define Y 800
 
@@ -17,6 +23,18 @@ int human_nodes = 0;
 int machine_nodes = 0;
 
 int turn = 0;
+
+bool who_won() {
+	if (n_erased >= 21) {
+		if (turn % 2 == 0)
+			printf("HUMAN WON\n");
+		else
+			printf("MACHINE WON\n");
+
+		return true;
+	}
+	return false;
+}
 
 void draw_points(void) {
 	int n = 6;
@@ -138,17 +156,15 @@ void machine_lines(void) {
 	}
 }
 
-/* void print_erased() { */
-/* 	printf("--------------------------\n"); */
-/* 	for (int i=0; i<21; i++) printf("machine %d, %d, human %d, %d\n", machine_erased[i][0], machine_erased[i][1], human_erased[i][0], human_erased[i][1]); */
-/* } */
-
 int main() {
 	InitWindow(X,Y, "dot2dot");
 	SetTargetFPS(60);		
 
 	bool end_game = false;
+
 	while (!WindowShouldClose() && !end_game) {
+		if (already_erased() || who_won()) end_game = true;
+
 		n_erased = 0;
 		erase();
 
@@ -156,13 +172,10 @@ int main() {
 		ClearBackground(GRAY);
 		DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
-		if (already_erased()) DrawText("COLLISION", 20, Y-90, 40, RED);
-
 		draw_points();
 		human_lines();
 		machine_lines();
 
-		if (n_erased == 21) end_game = true;
 
 		EndDrawing();
 	}
