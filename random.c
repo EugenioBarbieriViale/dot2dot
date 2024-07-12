@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-int ans[2];
-
 int random_int(int range) {
     return (rand() % range);
 }
@@ -12,32 +10,29 @@ int count_non_zero(int arr[]) {
     int c = 0;
     for (int i=0; i<6; i++) {
         if (arr[i] != 0) {
-            printf("%d\n", arr[i]);
             c++;
         }
     }
     return c;
 }
 
-void choose_random(int pos[][2]) {
-    int chosen_y = pos[random_int(21)][1];
+int random_y(int pos[][2]) {
+    return pos[random_int(21)][1];
+}
+
+int random_x(int pos[][2]) {
     int possible_xs[6] = {0,0,0,0,0,0};
 
     int c = 0;
     for (int i = 0; i<21; i++) {
-        if (pos[i][1] == chosen_y) {
+        if (pos[i][1] == random_y(pos)) {
             possible_xs[c] = pos[i][0];
             c++;
         }
     }
-    /* for (int i=0; i<6; i++) printf("%d\n", possible_xs[i]); */
 
     int j = random_int(count_non_zero(possible_xs));
-    printf("J %d\n", j);
-    int chosen_x = possible_xs[j];
-
-    ans[0] = chosen_x;
-    ans[1] = chosen_y;
+    return possible_xs[j];
 }
 
 int main() {
@@ -67,8 +62,14 @@ int main() {
         {300, 620}
     };
 
-    choose_random(pos);
-    /* printf("%d %d", ans[0], ans[1]); */
+    int x1 = random_x(pos);
+    int y1 = random_y(pos);
+
+    int x2 = random_x(pos);
+    int y2 = random_y(pos);
+
+    printf("%d %d\n", x1, y1);
+    printf("%d %d\n", x2, y2);
 
     return 0;
 }
