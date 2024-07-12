@@ -3,9 +3,7 @@
 #include <raylib.h>
 
 /* TODO:
- * - implement last one that cancels looses
  * + make single func that draws lines
- * + write description of the game in the README.md
 */
 
 #define X 1000
