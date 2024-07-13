@@ -137,15 +137,18 @@ void erase(void) {
                 human_erased[human_nodes][0] = x;
                 human_erased[human_nodes][1] = y;
                 human_nodes++;
+
+                temp++;
+                if (temp % 2 == 0) turn++;
             }
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && turn % 2 == 1) {
+            machine_erased[machine_nodes][0] = random_x();
+            machine_erased[machine_nodes][1] = random_y();
+            machine_nodes++;
             temp++;
             if (temp % 2 == 0) turn++;
-        } else {
-            if (turn % 2 == 1) {
-                machine_erased[machine_nodes][0] = random_x();
-                machine_erased[machine_nodes][1] = random_y();
-                machine_nodes++;
-            }
         }
     }
 }
