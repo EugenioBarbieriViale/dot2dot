@@ -127,22 +127,26 @@ void erase(Vector2 mouse_pos, Rectangle button) {
                 human_erased[human_nodes][0] = x;
                 human_erased[human_nodes][1] = y;
                 human_nodes++;
-
-                temp++;
-                if (temp % 2 == 0) turn++;
             }
+            temp++;
+            if (temp % 2 == 0) turn++;
         }
 
-        if (button_pressed(mouse_pos, button) && turn % 2 == 1) {
-            int rand_y = get_y();
-            machine_erased[machine_nodes][1] = rand_y;
+        else if (button_pressed(mouse_pos, button)) {
+            if (turn % 2 == 1) {
+                int rand_y = get_y();
+                machine_erased[machine_nodes][1] = rand_y;
 
-            for (int i= 0; i<2; i++) {
-                int rand_x = get_x(rand_y);
-                machine_erased[machine_nodes][0] = rand_x;
+                for (int i = 0; i<2; i++) {
+                    int rand_x = get_x(rand_y);
+                    machine_erased[machine_nodes][0] = rand_x;
+                }
+
+                machine_nodes++;
             }
 
-            machine_nodes++;
+            temp++;
+            if (temp % 2 == 1) turn++;
         }
     }
 }
@@ -151,6 +155,7 @@ void human_lines(void) {
     for (int i=1; i<human_nodes; i++)   {
         Vector2 p1 = {human_erased[i-1][0], human_erased[i-1][1]};
         Vector2 p2 = {human_erased[i][0], human_erased[i][1]};
+        printf("human: %f - %f at %f\n", p1.x, p2.x, p1.y);
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -172,6 +177,7 @@ void machine_lines(void) {
     for (int i=1; i<machine_nodes; i++) {
         Vector2 p1 = {machine_erased[i-1][0], machine_erased[i-1][1]};
         Vector2 p2 = {machine_erased[i][0], machine_erased[i][1]};
+        printf("machine: %f - %f at %f\n", p1.x, p2.x, p1.y);
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -201,8 +207,8 @@ int main() {
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
 
-        if (already_erased() || who_won()) 
-            printf("COLLISION\n");
+        /* if (already_erased() || who_won()) */ 
+        /*     printf("COLLISION\n"); */
             /* end_game = true; */
 
         n_erased = 0;
