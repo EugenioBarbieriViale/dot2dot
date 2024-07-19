@@ -36,6 +36,12 @@ bool who_won() {
     return false;
 }
 
+bool button_pressed(Vector2 mouse_pos, Rectangle button) {
+	if (CheckCollisionPointRec(mouse_pos, button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        return true;
+    return false;
+}
+
 void draw_points(void) {
     int n = 6;
     int count = 0;
@@ -97,37 +103,21 @@ int random_int(int range) {
     return (rand() % range);
 }
 
-int count_non_zero(int arr[]) {
-    int c = 0;
-    for (int i=0; i<6; i++) {
-        if (arr[i] != 0) {
-            c++;
-        }
-    }
-    return c;
-}
-
-int random_y(void) {
+int get_y(void) {
     return pos[random_int(21)][1];
 }
 
-int random_x(void) {
-    int possible_xs[6] = {0,0,0,0,0,0};
-
-    int c = 0;
-    for (int i = 0; i<21; i++) {
-        if (pos[i][1] == random_y()) {
-            possible_xs[c] = pos[i][0];
-            c++;
-        }
+int get_x(int y) {
+    for (int i=0; i<100; i++) {
+        int index = random_int(21);
+        if (pos[index][1] == y)
+            return pos[index][0];
     }
-
-    int j = random_int(count_non_zero(possible_xs));
-    return possible_xs[j];
+    return 0;
 }
 
 int temp = 0;
-void erase(void) {
+void erase(Vector2 mouse_pos, Rectangle button) {
     for (int i=0; i<21; i++) {
         int x = pos[i][0];
         int y = pos[i][1];
@@ -143,12 +133,16 @@ void erase(void) {
             }
         }
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && turn % 2 == 1) {
-            machine_erased[machine_nodes][0] = random_x();
-            machine_erased[machine_nodes][1] = random_y();
+        if (button_pressed(mouse_pos, button) && turn % 2 == 1) {
+            int rand_y = get_y();
+            machine_erased[machine_nodes][1] = rand_y;
+
+            for (int i= 0; i<2; i++) {
+                int rand_x = get_x(rand_y);
+                machine_erased[machine_nodes][0] = rand_x;
+            }
+
             machine_nodes++;
-            temp++;
-            if (temp % 2 == 0) turn++;
         }
     }
 }
@@ -200,15 +194,19 @@ int main() {
     InitWindow(X,Y, "dot2dot");
     SetTargetFPS(60);       
 
+	Rectangle button = {945, Y - 50, 15, 15};
+
     bool end_game = false;
 
     while (!WindowShouldClose() && !end_game) {
+        Vector2 mouse_pos = GetMousePosition();
+
         if (already_erased() || who_won()) 
             printf("COLLISION\n");
             /* end_game = true; */
 
         n_erased = 0;
-        erase();
+        erase(mouse_pos, button);
 
         BeginDrawing();
         ClearBackground(GRAY);
@@ -217,7 +215,8 @@ int main() {
         draw_points();
         human_lines();
         machine_lines();
-
+        
+		DrawRectangleRounded(button, 0.8, 40, RED);
 
         EndDrawing();
     }
