@@ -19,6 +19,8 @@ int human_erased[21][2];
 int machine_erased[21][2];
 int n_erased;
 
+int possible_pos[21][2];
+
 int human_nodes = 0;
 int machine_nodes = 0;
 
@@ -58,6 +60,9 @@ void draw_points(void) {
             pos[count][0] = x;
             pos[count][1] = y;
 
+            possible_pos[count][0] = x;
+            possible_pos[count][1] = y;
+
             count++;
         }
         n--;
@@ -79,13 +84,11 @@ bool collision(int x1, int x2, int x3, int x4) {
     if (x1 < x2)
         if ((x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2))
             return true;
-        else 
-            return false;
     else 
         if ((x3 >= x2 && x3 <= x1) || (x4 >= x2 && x4 <= x1))
             return true;
-        else 
-            return false;
+
+    return false;
 }
 
 bool already_erased() {
@@ -104,15 +107,32 @@ int random_int(int range) {
     return (rand() % range);
 }
 
+void possible_pos_macine() {
+    for (int i=0; i<machine_nodes; i+=2) {
+        for (int j=0; j<machine_nodes; j++) {
+            int cx = pos[j][0];
+            int xi = machine_erased[i][0];
+            int xf = machine_erased[i+1][0];
+
+            if (machine_erased[i][1] == pos[j][1]) {
+                if ((cx >= xi && cx <= xf) || (cx >= xf && cx <= xi)) {
+                    possible_pos[j][0] = 0;
+                    possible_pos[j][1] = 0;
+                }
+            }
+        }
+    }
+}
+
 int get_y(void) {
-    return pos[random_int(21)][1];
+    return possible_pos[random_int(21)][1];
 }
 
 int get_x(int y) {
     for (int i=0; i<100; i++) {
         int index = random_int(21);
-        if (pos[index][1] == y)
-            return pos[index][0];
+        if (possible_pos[index][1] == y)
+            return possible_pos[index][0];
     }
     return 0;
 }
@@ -226,9 +246,9 @@ int main() {
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
 
-        if (already_erased() || who_won()) 
+         who_won()
+        if (already_erased())
             printf("COLLISION\n");
-            /* end_game = true; */
 
         n_erased = 0;
         erase(mouse_pos, button);
