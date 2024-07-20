@@ -117,11 +117,18 @@ int get_x(int y) {
     return 0;
 }
 
+void update_turn(void) {
+    temp++;
+    if (temp % 2 == 0) turn++;
+}
+
 void erase_human(int x, int y) {
     if (turn % 2 == 0) {
         human_erased[human_nodes][0] = x;
         human_erased[human_nodes][1] = y;
         human_nodes++;
+
+        update_turn();
     }
 }
 
@@ -138,6 +145,8 @@ void machine_erase(void) {
         machine_erased[machine_nodes][0] = rand_x;
 
         machine_nodes++;
+
+        update_turn();
     }
 }
 
@@ -148,14 +157,12 @@ void erase(Vector2 mouse_pos, Rectangle button) {
 
         if (clicked(x,y)) {
             erase_human(x, y);
-
-            temp++;
-            if (temp % 2 == 0) turn++;
         }
     }
 
-    if (button_pressed(mouse_pos, button))
+    if (button_pressed(mouse_pos, button)) {
         machine_erase();
+    }
 }
 
 void human_lines(void) {
@@ -200,6 +207,7 @@ void machine_lines(void) {
 }
 
 void print_lines(void) {
+    printf("h %d  m %d\n", human_nodes, machine_nodes);
     printf("-----------------------------\n");
     for (int i = 0; i<21; i++)
         printf("%d: h %d %d  m %d %d\n", i, human_erased[i][0], human_erased[i][1], machine_erased[i][0], machine_erased[i][1]);
@@ -216,11 +224,10 @@ int main() {
     bool end_game = false;
 
     while (!WindowShouldClose() && !end_game) {
-        print_lines();
         Vector2 mouse_pos = GetMousePosition();
 
-        /* if (already_erased() || who_won()) */ 
-        /*     printf("COLLISION\n"); */
+        if (already_erased() || who_won()) 
+            printf("COLLISION\n");
             /* end_game = true; */
 
         n_erased = 0;
