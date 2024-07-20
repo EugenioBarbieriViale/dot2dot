@@ -3,9 +3,6 @@
 #include <time.h>
 #include <raylib.h>
 
-/* TODO:
- * + machine makes moves randomly
-*/
 
 #define X 1000
 #define Y 800
@@ -271,6 +268,7 @@ int main() {
         DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
         draw_points(pos, possible_pos);
+
         human_lines(human_erased);
         machine_lines(machine_erased);
         
