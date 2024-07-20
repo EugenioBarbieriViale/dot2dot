@@ -123,8 +123,6 @@ void erase_human(int x, int y) {
         human_erased[human_nodes][1] = y;
         human_nodes++;
     }
-    temp++;
-    if (temp % 2 == 0) turn++;
 }
 
 void machine_erase(void) {
@@ -136,17 +134,11 @@ void machine_erase(void) {
         else
             machine_erased[machine_nodes][1] = machine_erased[machine_nodes - 1][1];
 
-        int rand_x1 = get_x(rand_y);
-        int rand_x2 = get_x(rand_y);
-
-        machine_erased[machine_nodes][0] = rand_x1;
-        machine_erased[machine_nodes+1][0] = rand_x2;
+        int rand_x = get_x(rand_y);
+        machine_erased[machine_nodes][0] = rand_x;
 
         machine_nodes++;
     }
-
-    temp++;
-    if (temp % 2 == 1) turn++;
 }
 
 void erase(Vector2 mouse_pos, Rectangle button) {
@@ -154,8 +146,12 @@ void erase(Vector2 mouse_pos, Rectangle button) {
         int x = pos[i][0];
         int y = pos[i][1];
 
-        if (clicked(x,y))
+        if (clicked(x,y)) {
             erase_human(x, y);
+
+            temp++;
+            if (temp % 2 == 0) turn++;
+        }
     }
 
     if (button_pressed(mouse_pos, button))
@@ -166,7 +162,6 @@ void human_lines(void) {
     for (int i=1; i<human_nodes; i++)   {
         Vector2 p1 = {human_erased[i-1][0], human_erased[i-1][1]};
         Vector2 p2 = {human_erased[i][0], human_erased[i][1]};
-        /* printf("human: %f - %f at %f\n", p1.x, p2.x, p1.y); */
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -188,7 +183,6 @@ void machine_lines(void) {
     for (int i=1; i<machine_nodes; i++) {
         Vector2 p1 = {machine_erased[i-1][0], machine_erased[i-1][1]};
         Vector2 p2 = {machine_erased[i][0], machine_erased[i][1]};
-        /* printf("machine: %f - %f at %f\n", p1.x, p2.x, p1.y); */
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -205,6 +199,12 @@ void machine_lines(void) {
     }
 }
 
+void print_lines(void) {
+    printf("-----------------------------\n");
+    for (int i = 0; i<21; i++)
+        printf("%d: h %d %d  m %d %d\n", i, human_erased[i][0], human_erased[i][1], machine_erased[i][0], machine_erased[i][1]);
+}
+
 int main() {
     srand(time(NULL));
 
@@ -216,6 +216,7 @@ int main() {
     bool end_game = false;
 
     while (!WindowShouldClose() && !end_game) {
+        print_lines();
         Vector2 mouse_pos = GetMousePosition();
 
         /* if (already_erased() || who_won()) */ 
