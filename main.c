@@ -35,7 +35,7 @@ bool button_pressed(Vector2 mouse_pos, Rectangle button) {
     return false;
 }
 
-void draw_points(int pos[21][2], int possible_pos[21][2]) {
+void init_points(int pos[21][2], int possible_pos[21][2]) {
     int n = 6;
     int count = 0;
 
@@ -43,9 +43,6 @@ void draw_points(int pos[21][2], int possible_pos[21][2]) {
         for (int i=0; i<n; i++) {
             int x = 300 + (2*R+20)*i;
             int y = 170 + (2*R+10)*j;
-
-            DrawCircle(x, y, R, (Color){255,255,0,90});
-            DrawText(TextFormat("%d", count), x - 6, y - 10, 20,WHITE);
 
             pos[count][0] = x;
             pos[count][1] = y;
@@ -56,6 +53,16 @@ void draw_points(int pos[21][2], int possible_pos[21][2]) {
             count++;
         }
         n--;
+    }
+}
+
+void draw_points(int pos[21][2]) {
+    for (int i=0; i<21; i++) {
+        int x = pos[i][0];
+        int y = pos[i][1];
+
+        DrawCircle(x, y, R, (Color){255,255,0,90});
+        DrawText(TextFormat("%d", i), x - 6, y - 10, 20,WHITE);
     }
 }
 
@@ -96,21 +103,38 @@ int random_int(int range) {
     return (rand() % range);
 }
 
-void possible_pos_machine(int pos[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
+void possible_pos_machine(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
     for (int i=0; i<machine_nodes; i+=2) {
         for (int j=0; j<21; j++) {
             int cx = pos[j][0];
-            int xi = machine_erased[i][0];
-            int xf = machine_erased[i+1][0];
+            
+            int xmi = machine_erased[i][0];
+            int xmf = machine_erased[i+1][0];
 
             if (machine_erased[i][1] == pos[j][1]) {
-                if ((cx >= xi && cx <= xf) || (cx >= xf && cx <= xi)) {
+                if ((cx >= xmi && cx <= xmf) || (cx >= xmf && cx <= xmi)) {
                     possible_pos[j][0] = 0;
                     possible_pos[j][1] = 0;
                 }
-            }
+            } 
         }
     }
+
+    /* for (int i=0; i<human_nodes; i+=2) { */
+    /*     for (int j=0; j<21; j++) { */
+    /*         int cx = pos[j][0]; */
+
+    /*         int xhi = human_erased[i][0]; */
+    /*         int xhf = human_erased[i+1][0]; */
+
+    /*         if (human_erased[i][1] == pos[j][1]) { */
+    /*             if ((cx >= xhi && cx <= xhf) || (cx >= xhf && cx <= xhi)) { */
+    /*                 possible_pos[j][0] = 0; */
+    /*                 possible_pos[j][1] = 0; */
+    /*             } */
+    /*         } */
+    /*     } */
+    /* } */
 }
 
 int get_y(int possible_pos[21][2]) {
@@ -141,7 +165,7 @@ void update_turn(void) {
     if (temp % 2 == 0) turn++;
 }
 
-void erase_human(int x, int y, int human_erased[21][2]) {
+void human_erase(int x, int y, int human_erased[21][2]) {
     if (turn % 2 == 0) {
         human_erased[human_nodes][0] = x;
         human_erased[human_nodes][1] = y;
@@ -151,9 +175,9 @@ void erase_human(int x, int y, int human_erased[21][2]) {
     }
 }
 
-void machine_erase(int pos[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
+void machine_erase(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
     if (turn % 2 == 1) {
-        possible_pos_machine(pos, machine_erased, possible_pos);
+        possible_pos_machine(pos, human_erased, machine_erased, possible_pos);
 
         int rand_y = get_y(possible_pos);
 
@@ -177,12 +201,12 @@ void erase(Vector2 mouse_pos, Rectangle button, int pos[21][2], int human_erased
         int y = pos[i][1];
 
         if (clicked(mouse_pos, x, y)) {
-            erase_human(x, y, human_erased);
+            human_erase(x, y, human_erased);
         }
     }
 
     if (button_pressed(mouse_pos, button)) {
-        machine_erase(pos, machine_erased, possible_pos);
+        machine_erase(pos, human_erased, machine_erased, possible_pos);
     }
 }
 
@@ -228,10 +252,6 @@ void machine_lines(int machine_erased[21][2]) {
 }
 
 void print_lines(int pos[21][2], int possible_pos[21][2]) {
-    /* printf("h %d  m %d\n", human_nodes, machine_nodes); */
-    printf("-----------------------------\n");
-    /* for (int i = 0; i<21; i++) */
-    /*     printf("%d: h %d %d  m %d %d\n", i, human_erased[i][0], human_erased[i][1], machine_erased[i][0], machine_erased[i][1]); */
     for (int i = 0; i<21; i++)
         printf("%d: poss %d %d --- pos %d %d\n", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]);
 }
@@ -250,24 +270,28 @@ int main() {
 
 	Rectangle button = {945, Y - 50, 15, 15};
 
+    init_points(pos, possible_pos);
+    
     bool end_game = false;
 
     while (!WindowShouldClose() && !end_game) {
-        /* print_lines(pos, possible_pos); */
         Vector2 mouse_pos = GetMousePosition();
+        print_lines(pos, possible_pos);
 
         who_won();
+
         if (already_erased(human_erased, machine_erased))
             printf("COLLISION\n");
 
         n_erased = 0;
         erase(mouse_pos, button, pos, human_erased, machine_erased, possible_pos);
 
+
         BeginDrawing();
         ClearBackground(GRAY);
         DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
-        draw_points(pos, possible_pos);
+        draw_points(pos);
 
         human_lines(human_erased);
         machine_lines(machine_erased);
