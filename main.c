@@ -1,3 +1,11 @@
+/*
+ * TODO:
+ * - collision at start
+ * + collision sometimes doesn't work properly
+ * + machine lines often too long
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -87,10 +95,14 @@ bool collision(int x1, int x2, int x3, int x4) {
     return false;
 }
 
+bool start_condition(int i, int j, int human_erased[21][2], int machine_erased[21][2]) {
+    return (human_erased[0][0] != 0 && human_erased[0][1] != 0 && machine_erased[0][0] != 0 && machine_erased[0][1] != 0);
+}
+
 bool already_erased(int human_erased[21][2], int machine_erased[21][2]) {
     for (int i=0; i<21; i+=2) {
         for (int j=0; j<21; j+=2) {
-            if (human_erased[i][1] != 0 && machine_erased[i][1] != 0 && machine_erased[j+1][1] != 0)
+            if (start_condition(i, j, human_erased, machine_erased))
                 if (machine_erased[i][1] == human_erased[j][1])
                     if (collision(machine_erased[i][0], machine_erased[i+1][0], human_erased[j][0], human_erased[j+1][0]))
                         return true;
@@ -149,8 +161,8 @@ int get_y(int possible_pos[21][2]) {
 int get_x(int y, int possible_pos[21][2]) {
     for (int i=0; i<100; i++) {
         int index = random_int(21);
-        if (possible_pos[index][1] == y)
 
+        if (possible_pos[index][1] == y)
             for (int j=0; j<50; j++) {
                 int ans = possible_pos[index][0];
                 if (ans != 0)
@@ -251,10 +263,13 @@ void machine_lines(int machine_erased[21][2]) {
     }
 }
 
-void print_lines(int pos[21][2], int possible_pos[21][2]) {
+void print_lines(int pos[21][2], int possible_pos[21][2], int machine_erased[21][2]) {
     printf("---------------------\n");
-    for (int i = 0; i<21; i++)
-        printf("%d: poss %d %d --- pos %d %d\n", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]);
+    /* for (int i = 0; i<21; i++) */
+    /*     printf("%d: poss %d %d --- pos %d %d\n", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]); */
+    for (int i = 0; i<machine_nodes; i++) {
+        printf("%d: %d %d\n", i, machine_erased[i][0], machine_erased[i][1]);
+    }
 }
 
 int main() {
@@ -277,9 +292,10 @@ int main() {
 
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
-        /* print_lines(pos, possible_pos); */
+        print_lines(pos, possible_pos, machine_erased);
 
-        who_won();
+        if (who_won())
+            end_game = true;
 
         if (already_erased(human_erased, machine_erased))
             end_game = true;
@@ -303,4 +319,6 @@ int main() {
         EndDrawing();
     }
     CloseWindow();
+
+    return 0;
 }
