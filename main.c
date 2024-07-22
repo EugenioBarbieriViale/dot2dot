@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
 #include <raylib.h>
 
@@ -105,17 +106,15 @@ bool collision(int x1, int x2, int x3, int x4) {
     return false;
 }
 
-bool start_condition(int human_erased[21][2], int machine_erased[21][2]) {
-    return (human_erased[0][0] != 0 && human_erased[0][1] != 0 && machine_erased[0][0] != 0 && machine_erased[0][1] != 0 && human_nodes == 0 && machine_nodes == 0);
-}
-
 bool already_erased(int human_erased[21][2], int machine_erased[21][2]) {
     for (int i=0; i<21; i+=2) {
         for (int j=0; j<21; j+=2) {
-            if (start_condition(human_erased, machine_erased))
-                if (machine_erased[i][1] == human_erased[j][1])
+            if (human_nodes > 0 && machine_nodes > 0) {
+                if (machine_erased[i][1] == human_erased[j][1]) {
                     if (collision(machine_erased[i][0], machine_erased[i+1][0], human_erased[j][0], human_erased[j+1][0]))
-                        return true;
+                            return true;
+                }
+            }
         }
     }
     return false;
@@ -311,8 +310,8 @@ int main() {
             end_game = true;
 
         if (already_erased(human_erased, machine_erased))
-            /* end_game = true; */
             printf("COLLISION\n");
+            /* end_game = true; */
 
         n_erased = 0;
         erase(mouse_pos, button, pos, human_erased, machine_erased, possible_pos);
