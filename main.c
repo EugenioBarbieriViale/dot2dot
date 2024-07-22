@@ -103,7 +103,7 @@ int random_int(int range) {
     return (rand() % range);
 }
 
-void possible_pos_machine(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
+void possible_positions(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
     for (int i=0; i<machine_nodes; i+=2) {
         for (int j=0; j<21; j++) {
             int cx = pos[j][0];
@@ -120,21 +120,21 @@ void possible_pos_machine(int pos[21][2], int human_erased[21][2], int machine_e
         }
     }
 
-    /* for (int i=0; i<human_nodes; i+=2) { */
-    /*     for (int j=0; j<21; j++) { */
-    /*         int cx = pos[j][0]; */
+    for (int i=0; i<human_nodes; i+=2) {
+        for (int j=0; j<21; j++) {
+            int cx = pos[j][0];
 
-    /*         int xhi = human_erased[i][0]; */
-    /*         int xhf = human_erased[i+1][0]; */
+            int xhi = human_erased[i][0];
+            int xhf = human_erased[i+1][0];
 
-    /*         if (human_erased[i][1] == pos[j][1]) { */
-    /*             if ((cx >= xhi && cx <= xhf) || (cx >= xhf && cx <= xhi)) { */
-    /*                 possible_pos[j][0] = 0; */
-    /*                 possible_pos[j][1] = 0; */
-    /*             } */
-    /*         } */
-    /*     } */
-    /* } */
+            if (human_erased[i][1] == pos[j][1]) {
+                if ((cx >= xhi && cx <= xhf) || (cx >= xhf && cx <= xhi)) {
+                    possible_pos[j][0] = 0;
+                    possible_pos[j][1] = 0;
+                }
+            }
+        }
+    }
 }
 
 int get_y(int possible_pos[21][2]) {
@@ -177,7 +177,7 @@ void human_erase(int x, int y, int human_erased[21][2]) {
 
 void machine_erase(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
     if (turn % 2 == 1) {
-        possible_pos_machine(pos, human_erased, machine_erased, possible_pos);
+        possible_positions(pos, human_erased, machine_erased, possible_pos);
 
         int rand_y = get_y(possible_pos);
 
@@ -252,6 +252,7 @@ void machine_lines(int machine_erased[21][2]) {
 }
 
 void print_lines(int pos[21][2], int possible_pos[21][2]) {
+    printf("---------------------\n");
     for (int i = 0; i<21; i++)
         printf("%d: poss %d %d --- pos %d %d\n", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]);
 }
@@ -276,12 +277,13 @@ int main() {
 
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
-        print_lines(pos, possible_pos);
+        /* print_lines(pos, possible_pos); */
 
         who_won();
 
         if (already_erased(human_erased, machine_erased))
-            printf("COLLISION\n");
+            end_game = true;
+            /* printf("COLLISION\n"); */
 
         n_erased = 0;
         erase(mouse_pos, button, pos, human_erased, machine_erased, possible_pos);
