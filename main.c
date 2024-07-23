@@ -2,7 +2,7 @@
  * TODO:
  * - collision at start
  * + collision sometimes doesn't work properly
- * + machine lines often too long
+ * + blue lines often too long
 */
 
 
@@ -20,8 +20,8 @@
 
 int n_erased;
 
-int human_nodes = 0;
-int machine_nodes = 0;
+int red_nodes = 0;
+int blue_nodes = 0;
 
 int turn = 0;
 int temp = 0;
@@ -65,13 +65,13 @@ void init_points(int pos[21][2], int possible_pos[21][2]) {
     }
 }
 
-void alloc_erased(int human_erased[21][2], int machine_erased[21][2]) {
+void alloc_erased(int red_erased[21][2], int blue_erased[21][2]) {
     for (int i=0; i<21; i++) {
-        human_erased[i][0] = 0;
-        human_erased[i][1] = 0;
+        red_erased[i][0] = 0;
+        red_erased[i][1] = 0;
 
-        machine_erased[i][0] = 0;
-        machine_erased[i][1] = 0;
+        blue_erased[i][0] = 0;
+        blue_erased[i][1] = 0;
     }
 }
 
@@ -106,12 +106,14 @@ bool collision(int x1, int x2, int x3, int x4) {
     return false;
 }
 
-bool already_erased(int human_erased[21][2], int machine_erased[21][2]) {
+bool already_erased(int red_erased[21][2], int blue_erased[21][2]) {
     for (int i=0; i<21; i+=2) {
         for (int j=0; j<21; j+=2) {
-            if (human_nodes > 0 && machine_nodes > 0) {
-                if (machine_erased[i][1] == human_erased[j][1]) {
-                    if (collision(machine_erased[i][0], machine_erased[i+1][0], human_erased[j][0], human_erased[j+1][0]))
+            if (red_erased[i][1] != 0 && blue_erased[i][1] != 0 && blue_erased[j+1][1] != 0) {
+            /* if (red_nodes > 0 && blue_nodes > 0) { */
+                if (blue_erased[i][1] == red_erased[j][1]) {
+                    /* if (collision(blue_erased[i][0], blue_erased[i+1][0], red_erased[j][0], red_erased[j+1][0]) || collision(red_erased[i][0], red_erased[i+1][0], blue_erased[j][0], blue_erased[j+1][0])) */
+                    if (collision(blue_erased[i][0], blue_erased[i+1][0], red_erased[j][0], red_erased[j+1][0]))
                             return true;
                 }
             }
@@ -120,19 +122,15 @@ bool already_erased(int human_erased[21][2], int machine_erased[21][2]) {
     return false;
 }
 
-int random_int(int range) {
-    return (rand() % range);
-}
-
-void possible_positions(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
-    for (int i=0; i<machine_nodes; i+=2) {
+void possible_positions(int pos[21][2], int red_erased[21][2], int blue_erased[21][2], int possible_pos[21][2]) {
+    for (int i=0; i<blue_nodes; i+=2) {
         for (int j=0; j<21; j++) {
             int cx = pos[j][0];
             
-            int xmi = machine_erased[i][0];
-            int xmf = machine_erased[i+1][0];
+            int xmi = blue_erased[i][0];
+            int xmf = blue_erased[i+1][0];
 
-            if (machine_erased[i][1] == pos[j][1]) {
+            if (blue_erased[i][1] == pos[j][1]) {
                 if ((cx >= xmi && cx <= xmf) || (cx >= xmf && cx <= xmi)) {
                     possible_pos[j][0] = 0;
                     possible_pos[j][1] = 0;
@@ -141,14 +139,14 @@ void possible_positions(int pos[21][2], int human_erased[21][2], int machine_era
         }
     }
 
-    for (int i=0; i<human_nodes; i+=2) {
+    for (int i=0; i<red_nodes; i+=2) {
         for (int j=0; j<21; j++) {
             int cx = pos[j][0];
 
-            int xhi = human_erased[i][0];
-            int xhf = human_erased[i+1][0];
+            int xhi = red_erased[i][0];
+            int xhf = red_erased[i+1][0];
 
-            if (human_erased[i][1] == pos[j][1]) {
+            if (red_erased[i][1] == pos[j][1]) {
                 if ((cx >= xhi && cx <= xhf) || (cx >= xhf && cx <= xhi)) {
                     possible_pos[j][0] = 0;
                     possible_pos[j][1] = 0;
@@ -156,6 +154,10 @@ void possible_positions(int pos[21][2], int human_erased[21][2], int machine_era
             }
         }
     }
+}
+
+int random_int(int range) {
+    return (rand() % range);
 }
 
 int get_y(int possible_pos[21][2]) {
@@ -168,73 +170,94 @@ int get_y(int possible_pos[21][2]) {
 }
 
 int get_x(int y, int possible_pos[21][2]) {
+    int ans = 0;
     for (int i=0; i<100; i++) {
         int index = random_int(21);
 
-        if (possible_pos[index][1] == y)
+        if (possible_pos[index][1] == y) {
             for (int j=0; j<50; j++) {
-                int ans = possible_pos[index][0];
-                if (ans != 0)
-                    return ans;
+                    ans = possible_pos[index][0];
+                    if (ans != 0)
+                        return ans;
             }
+        }
     }
     return 0;
 }
+/* int get_x(int y, int possible_pos[21][2]) { */
+/*     int c = 0; */
+/*     for (int i=0; i<21; i++) { */
+/*         if (possible_pos[i][1] == y) { */
+/*             c++; */
+/*         } */
+/*     } */
+/*     for (int i=0; i<21; i++) { */
+/*         if (possible_pos[i][1] == y) { */
+/*             int index = random_int(c); */
+/*             for (int j=0; j<40; j++) { */
+/*                 int ans = possible_pos[index][0]; */
+/*                 if (ans != 0) */
+/*                     return ans; */
+/*             } */
+/*         } */
+/*     } */
+/*     return 0; */
+/* } */
 
 void update_turn(void) {
     temp++;
     if (temp % 2 == 0) turn++;
 }
 
-void human_erase(int x, int y, int human_erased[21][2]) {
+void red_erase(int x, int y, int red_erased[21][2]) {
     if (turn % 2 == 0) {
-        human_erased[human_nodes][0] = x;
-        human_erased[human_nodes][1] = y;
-        human_nodes++;
+        red_erased[red_nodes][0] = x;
+        red_erased[red_nodes][1] = y;
+        red_nodes++;
 
         update_turn();
     }
 }
 
-void machine_erase(int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
+void blue_erase(int pos[21][2], int red_erased[21][2], int blue_erased[21][2], int possible_pos[21][2]) {
     if (turn % 2 == 1) {
-        possible_positions(pos, human_erased, machine_erased, possible_pos);
+        possible_positions(pos, red_erased, blue_erased, possible_pos);
 
         int rand_y = get_y(possible_pos);
 
-        if (machine_nodes % 2 == 0)
-            machine_erased[machine_nodes][1] = rand_y;
+        if (blue_nodes % 2 == 0)
+            blue_erased[blue_nodes][1] = rand_y;
         else
-            machine_erased[machine_nodes][1] = machine_erased[machine_nodes - 1][1];
+            blue_erased[blue_nodes][1] = blue_erased[blue_nodes - 1][1];
 
         int rand_x = get_x(rand_y, possible_pos);
-        machine_erased[machine_nodes][0] = rand_x;
+        blue_erased[blue_nodes][0] = rand_x;
 
-        machine_nodes++;
+        blue_nodes++;
 
         update_turn();
     }
 }
 
-void erase(Vector2 mouse_pos, Rectangle button, int pos[21][2], int human_erased[21][2], int machine_erased[21][2], int possible_pos[21][2]) {
+void erase(Vector2 mouse_pos, Rectangle button, int pos[21][2], int red_erased[21][2], int blue_erased[21][2], int possible_pos[21][2]) {
     for (int i=0; i<21; i++) {
         int x = pos[i][0];
         int y = pos[i][1];
 
         if (clicked(mouse_pos, x, y)) {
-            human_erase(x, y, human_erased);
+            red_erase(x, y, red_erased);
         }
     }
 
     if (button_pressed(mouse_pos, button)) {
-        machine_erase(pos, human_erased, machine_erased, possible_pos);
+        blue_erase(pos, red_erased, blue_erased, possible_pos);
     }
 }
 
-void human_lines(int human_erased[21][2]) {
-    for (int i=1; i<human_nodes; i++)   {
-        Vector2 p1 = {human_erased[i-1][0], human_erased[i-1][1]};
-        Vector2 p2 = {human_erased[i][0], human_erased[i][1]};
+void red_lines(int red_erased[21][2]) {
+    for (int i=1; i<red_nodes; i++)   {
+        Vector2 p1 = {red_erased[i-1][0], red_erased[i-1][1]};
+        Vector2 p2 = {red_erased[i][0], red_erased[i][1]};
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -252,10 +275,10 @@ void human_lines(int human_erased[21][2]) {
 
 }
 
-void machine_lines(int machine_erased[21][2]) {
-    for (int i=1; i<machine_nodes; i++) {
-        Vector2 p1 = {machine_erased[i-1][0], machine_erased[i-1][1]};
-        Vector2 p2 = {machine_erased[i][0], machine_erased[i][1]};
+void blue_lines(int blue_erased[21][2]) {
+    for (int i=1; i<blue_nodes; i++) {
+        Vector2 p1 = {blue_erased[i-1][0], blue_erased[i-1][1]};
+        Vector2 p2 = {blue_erased[i][0], blue_erased[i][1]};
 
         if (p1.x > p2.x) {
             p1.x += 3*R/4;
@@ -272,14 +295,15 @@ void machine_lines(int machine_erased[21][2]) {
     }
 }
 
-void print_lines(int pos[21][2], int possible_pos[21][2], int machine_erased[21][2]) {
+void print_lines(int pos[21][2], int possible_pos[21][2], int blue_erased[21][2]) {
     printf("---------------------\n");
-    for (int i = 0; i<21; i++)
-        printf("%d %d\n", machine_erased[i][0], machine_erased[i][1]);
-        /* printf("%d: poss %d %d --- pos %d %d\n", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]); */
+    for (int i = 0; i<21; i++) {
+        printf("%d: poss %d %d --- pos %d %d", i, possible_pos[i][0], possible_pos[i][1], pos[i][0], pos[i][1]);
+        printf(" --- erased: %d %d\n", blue_erased[i][0], blue_erased[i][1]);
+    }
 
-    /* for (int i = 0; i<machine_nodes; i++) { */
-    /*     printf("%d: %d %d\n", i, machine_erased[i][0], machine_erased[i][1]); */
+    /* for (int i = 0; i<blue_nodes; i++) { */
+    /*     printf("%d: %d %d\n", i, blue_erased[i][0], blue_erased[i][1]); */
     /* } */
 }
 
@@ -292,11 +316,11 @@ int main() {
     int pos[21][2];
     int possible_pos[21][2];
 
-    int machine_erased[21][2];
-    int human_erased[21][2];
+    int blue_erased[21][2];
+    int red_erased[21][2];
 
     init_points(pos, possible_pos);
-    alloc_erased(human_erased, machine_erased);
+    alloc_erased(red_erased, blue_erased);
 
 	Rectangle button = {945, Y - 50, 15, 15};
 
@@ -304,17 +328,18 @@ int main() {
 
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
-        /* print_lines(pos, possible_pos, machine_erased); */
+        print_lines(pos, possible_pos, blue_erased);
 
         if (who_won())
             end_game = true;
 
-        if (already_erased(human_erased, machine_erased))
+        if (already_erased(red_erased, blue_erased)) {
             printf("COLLISION\n");
-            /* end_game = true; */
+            end_game = true;
+        }
 
         n_erased = 0;
-        erase(mouse_pos, button, pos, human_erased, machine_erased, possible_pos);
+        erase(mouse_pos, button, pos, red_erased, blue_erased, possible_pos);
 
 
         BeginDrawing();
@@ -323,8 +348,8 @@ int main() {
 
         draw_points(pos);
 
-        human_lines(human_erased);
-        machine_lines(machine_erased);
+        red_lines(red_erased);
+        blue_lines(blue_erased);
         
 		DrawRectangleRounded(button, 0.8, 40, RED);
 
