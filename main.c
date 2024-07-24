@@ -50,20 +50,18 @@ bool button_pressed(Vector2 mouse_pos, Rectangle button) {
     return false;
 }
 
-void init_points(Dot dots[21][2]) {
+void init_points(Dot dots[21]) {
     int n = 6;
     int count = 0;
 
     for (int j=0; j<6; j++) {
         for (int i=0; i<n; i++) {
-            Dot current = dots[i];
-
             int x = 300 + (2*R+20)*i;
             int y = 170 + (2*R+10)*j;
 
-            current.x = x;
-            current.y = y;
-            current.erased = false;
+            dots[count].x = x;
+            dots[count].y = y;
+            dots[count].erased = false;
 
             count++;
         }
@@ -71,12 +69,10 @@ void init_points(Dot dots[21][2]) {
     }
 }
 
-void draw_points(Dot dots[21][2]) {
+void draw_points(Dot dots[21]) {
     for (int i=0; i<21; i++) {
-        Dot current = dots[i];
-
-        DrawCircle(current.x, current.y, R, (Color){255,255,0,90});
-        DrawText(TextFormat("%d", i), current.x - 6, current.y - 10, 20, WHITE);
+        DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
+        DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
     }
 }
 
@@ -96,8 +92,9 @@ int random_int(int range) {
 
 int get_y(Dot dots[21]) {
     for (int i=0; i<50; i++) {
-        int ans = dots[random_int(21)].x;
-        if (!ans.erased)
+        Dot current = dots[random_int(21)];
+        int ans = current.x;
+        if (!current.erased)
             return ans;
     }
     return 0;
@@ -157,13 +154,13 @@ void erase(Vector2 mouse_pos, Rectangle button, Dot dots[21], int red_erased[21]
         int y = dots[i].y;
 
         if (clicked(mouse_pos, x, y)) {
-            red_erase(x, y, dots, red_erased, blue_erased, possible_pos);
+            red_erase(x, y, dots, red_erased, blue_erased);
             dots[i].erased = true;
         }
     }
 
     if (button_pressed(mouse_pos, button)) {
-        blue_erase(dots, red_erased, blue_erased, possible_pos);
+        blue_erase(dots, red_erased, blue_erased);
     }
 }
 
@@ -219,7 +216,7 @@ int main() {
     int blue_erased[21][2];
     int red_erased[21][2];
 
-    init_points(dots, possible_pos);
+    init_points(dots);
 
 	Rectangle button = {945, Y - 50, 15, 15};
 
@@ -232,7 +229,7 @@ int main() {
             end_game = true;
 
         n_erased = 0;
-        erase(mouse_pos, button, dots, red_erased, blue_erased, possible_pos);
+        erase(mouse_pos, button, dots, red_erased, blue_erased);
 
 
         BeginDrawing();
