@@ -169,22 +169,6 @@ int get_y(int possible_pos[21][2]) {
     return 0;
 }
 
-/* int inds[21]; */
-/* int get_x(int y, int possible_pos[21][2]) { */
-/*     int ans = 0; */
-/*     for (int i=0; i<100; i++) { */
-/*         inds[i] = random_int(21); */
-
-/*         if (possible_pos[inds[i]][1] == y) { */
-/*             for (int j=0; j<50; j++) { */
-/*                     ans = possible_pos[inds[i]][0]; */
-/*                     if (ans != 0) */
-/*                         return ans; */
-/*             } */
-/*         } */
-/*     } */
-/*     return 0; */
-/* } */
 int get_x(int y, int possible_pos[21][2]) {
     int ans = 0;
     for (int i=0; i<100; i++) {
@@ -192,24 +176,31 @@ int get_x(int y, int possible_pos[21][2]) {
 
         if (possible_pos[index][1] == y) {
             return possible_pos[index][0];
-            /* for (int j=0; j<50; j++) { */
-            /*     ans = possible_pos[index][0]; */
-            /*     printf("%d\n", ans); */
-            /*     if (ans != 0) */
-            /*         return ans; */
-            /* } */
         }
     }
     return 0;
 }
+/* int get_x(int y, int possible_pos[21][2]) { */
+/*     int c = 0; */
+/*     int ans[6]; */
+/*     for (int i=0; i<21; i++) { */
+/*         if (possible_pos[i][1] == y) { */
+/*             ans[c] = possible_pos[i][0]; */
+/*             c++; */
+/*         } */
+/*     } */
+/*     return ans[random_int(c)]; */
+/* } */
 
 void update_turn(void) {
     temp++;
     if (temp % 2 == 0) turn++;
 }
 
-void red_erase(int x, int y, int red_erased[21][2]) {
+void red_erase(int x, int y, int pos[21][2], int red_erased[21][2], int blue_erased[21][2], int possible_pos[21][2]) {
     if (turn % 2 == 0) {
+        possible_positions(pos, red_erased, blue_erased, possible_pos);
+
         red_erased[red_nodes][0] = x;
         red_erased[red_nodes][1] = y;
         red_nodes++;
@@ -244,7 +235,7 @@ void erase(Vector2 mouse_pos, Rectangle button, int pos[21][2], int red_erased[2
         int y = pos[i][1];
 
         if (clicked(mouse_pos, x, y)) {
-            red_erase(x, y, red_erased);
+            red_erase(x, y, pos, red_erased, blue_erased, possible_pos);
         }
     }
 
@@ -327,7 +318,7 @@ int main() {
 
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
-        /* print_lines(pos, possible_pos, blue_erased); */
+        print_lines(pos, possible_pos, blue_erased);
 
         if (who_won())
             end_game = true;
