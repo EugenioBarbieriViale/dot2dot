@@ -1,11 +1,3 @@
-/*
- * TODO:
- * - collision at start
- * + collision sometimes doesn't work properly
- * + blue lines often too long
-*/
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -105,7 +97,7 @@ int get_x(int y, Dot dots[21]) {
     int ans[6];
 
     for (int i=0; i<21; i++) {
-        if (dots[i].y == y) {
+        if (dots[i].y == y && !dots[i].erased) {
             ans[c] = dots[i].x;
             c++;
         }
@@ -213,8 +205,8 @@ int main() {
 
     Dot dots[21];
 
-    int blue_erased[21][2];
     int red_erased[21][2];
+    int blue_erased[21][2];
 
     init_points(dots);
 
@@ -230,6 +222,11 @@ int main() {
 
         n_erased = 0;
         erase(mouse_pos, button, dots, red_erased, blue_erased);
+
+        printf("----------------\n");
+        for (int i=0; i<21; i++)
+            printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]);
+            /* printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
 
 
         BeginDrawing();
