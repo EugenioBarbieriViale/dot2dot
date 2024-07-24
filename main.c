@@ -169,40 +169,39 @@ int get_y(int possible_pos[21][2]) {
     return 0;
 }
 
+/* int inds[21]; */
+/* int get_x(int y, int possible_pos[21][2]) { */
+/*     int ans = 0; */
+/*     for (int i=0; i<100; i++) { */
+/*         inds[i] = random_int(21); */
+
+/*         if (possible_pos[inds[i]][1] == y) { */
+/*             for (int j=0; j<50; j++) { */
+/*                     ans = possible_pos[inds[i]][0]; */
+/*                     if (ans != 0) */
+/*                         return ans; */
+/*             } */
+/*         } */
+/*     } */
+/*     return 0; */
+/* } */
 int get_x(int y, int possible_pos[21][2]) {
     int ans = 0;
     for (int i=0; i<100; i++) {
         int index = random_int(21);
 
         if (possible_pos[index][1] == y) {
-            for (int j=0; j<50; j++) {
-                    ans = possible_pos[index][0];
-                    if (ans != 0)
-                        return ans;
-            }
+            return possible_pos[index][0];
+            /* for (int j=0; j<50; j++) { */
+            /*     ans = possible_pos[index][0]; */
+            /*     printf("%d\n", ans); */
+            /*     if (ans != 0) */
+            /*         return ans; */
+            /* } */
         }
     }
     return 0;
 }
-/* int get_x(int y, int possible_pos[21][2]) { */
-/*     int c = 0; */
-/*     for (int i=0; i<21; i++) { */
-/*         if (possible_pos[i][1] == y) { */
-/*             c++; */
-/*         } */
-/*     } */
-/*     for (int i=0; i<21; i++) { */
-/*         if (possible_pos[i][1] == y) { */
-/*             int index = random_int(c); */
-/*             for (int j=0; j<40; j++) { */
-/*                 int ans = possible_pos[index][0]; */
-/*                 if (ans != 0) */
-/*                     return ans; */
-/*             } */
-/*         } */
-/*     } */
-/*     return 0; */
-/* } */
 
 void update_turn(void) {
     temp++;
@@ -328,7 +327,7 @@ int main() {
 
     while (!WindowShouldClose() && !end_game) {
         Vector2 mouse_pos = GetMousePosition();
-        print_lines(pos, possible_pos, blue_erased);
+        /* print_lines(pos, possible_pos, blue_erased); */
 
         if (who_won())
             end_game = true;
