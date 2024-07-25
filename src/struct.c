@@ -73,44 +73,55 @@ bool clicked(int x, int y) {
     else return false;
 }
 
-int previous(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
+int x_erased[21];
+
+void update_dot(Dot dots[21], int cx, int px, int y) {
     for (int i=0; i<21; i++) {
-        if (turn % 2 == 0) {
-            if (dots[i].x == red_erased[red_nodes-1][0] && dots[i].y == red_erased[red_nodes-1][1])
-                return i;
-        } else {
-            if (dots[i].x == blue_erased[blue_nodes-1][0] && dots[i].y == blue_erased[blue_nodes-1][1]) 
-                return i;
+        if (dots[i].y == y) {
+            if (cx < px)
+                if (dots[i].x >= cx && dots[i].x <= px)
+                    dots[i].erased = true;
+            else
+                if (dots[i].x >= px && dots[i].x <= cx)
+                    dots[i].erased = true;
         }
     }
-    return 0;
 }
-
-int all_erased[21];
 
 void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
     for (int i=0; i<21; i++) {
         int x = dots[i].x;
         int y = dots[i].y;
 
+        bool same_col = false;
         if (clicked(x,y)) {
-            all_erased[temp] = x;
 
-            if (dots[i].erased && (x != all_erased[temp - 1]))
-                end_game = true;
+            if (dots[i].erased && (x != x_erased[temp - 1]))
+                same_col = true;
 
-            /* printf("%d %d\n", x, all_erased[temp-1]); */
+            x_erased[temp] = x;
 
             if (turn % 2 == 0) {
+                if (dots[i].erased && (x != red_erased[red_nodes - 1][0] || same_col)) {
+                    end_game = true;
+                }
+
                 red_erased[red_nodes][0] = x;
                 red_erased[red_nodes][1] = y;
                 red_nodes++;
-            } else {
+            }
+
+            else {
+                if (dots[i].erased && (x != blue_erased[blue_nodes - 1][0] || same_col)) {
+                    end_game = true;
+                }
+
                 blue_erased[blue_nodes][0] = x;
                 blue_erased[blue_nodes][1] = y;
                 blue_nodes++;
             }
 
+            update_dot(dots, x, x_erased[temp - 1], y);
             dots[i].erased = true;
 
             temp++;
@@ -172,17 +183,15 @@ int main() {
     init_points(dots);
 
     while (!WindowShouldClose() && !end_game) {
-        if (who_won()) end_game = true;
+        if (who_won())
+            end_game = true;
 
         n_erased = 0;
         erase(dots, red_erased, blue_erased);
 
-
-        /* printf("----------------\n"); */
-        /* for (int i=0; i<21; i++) */
-        /*     printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
-            /* printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]); */
-        /* printf("%d %d", get_y(dots), get_x(get_y(dots), dots)); */
+        printf("---------------------\n");
+        for (int i=0; i<21; i++)
+            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
 
         BeginDrawing();
         ClearBackground(GRAY);
