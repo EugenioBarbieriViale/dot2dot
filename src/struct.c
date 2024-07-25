@@ -86,19 +86,7 @@ int previous(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
     return 0;
 }
 
-void update_dot(Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int i) {
-    if (temp % 2 == 1) {
-        int prev = previous(dots, red_erased, blue_erased);
-
-        dots[i].erased = true;
-        dots[prev].erased = true;
-        
-        /* if (prev != 0) */
-        /*     for (int j=prev+1; j < i; j++) { */
-        /*         dots[j].erased = true; */
-        /*     } */
-    }
-}
+int all_erased[21];
 
 void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
     for (int i=0; i<21; i++) {
@@ -106,9 +94,12 @@ void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
         int y = dots[i].y;
 
         if (clicked(x,y)) {
+            all_erased[temp] = x;
 
-            if (dots[i].erased)
+            if (dots[i].erased && (x != all_erased[temp - 1]))
                 end_game = true;
+
+            /* printf("%d %d\n", x, all_erased[temp-1]); */
 
             if (turn % 2 == 0) {
                 red_erased[red_nodes][0] = x;
@@ -120,7 +111,7 @@ void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
                 blue_nodes++;
             }
 
-            update_dot(dots, blue_erased, red_erased, i);
+            dots[i].erased = true;
 
             temp++;
             if (temp % 2 == 0) turn++;
@@ -187,9 +178,9 @@ int main() {
         erase(dots, red_erased, blue_erased);
 
 
-        printf("----------------\n");
-        for (int i=0; i<21; i++)
-            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
+        /* printf("----------------\n"); */
+        /* for (int i=0; i<21; i++) */
+        /*     printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
             /* printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]); */
         /* printf("%d %d", get_y(dots), get_x(get_y(dots), dots)); */
 
