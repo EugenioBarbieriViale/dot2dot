@@ -78,6 +78,22 @@ bool clicked(Vector2 mouse_pos, int x, int y) {
     else return false;
 }
 
+void update_turn(void) {
+    temp++;
+    if (temp % 2 == 0) turn++;
+}
+
+void red_erase(int x, int y, Dot dots[21], int red_erased[21][2]) {
+    if (turn % 2 == 0) {
+        red_erased[red_nodes][0] = x;
+        red_erased[red_nodes][1] = y;
+
+        red_nodes++;
+
+        update_turn();
+    }
+}
+
 int random_int(int range) {
     return (rand() % range);
 }
@@ -85,9 +101,8 @@ int random_int(int range) {
 int get_y(Dot dots[21]) {
     for (int i=0; i<50; i++) {
         Dot current = dots[random_int(21)];
-        int ans = current.x;
         if (!current.erased)
-            return ans;
+            return current.y;
     }
     return 0;
 }
@@ -97,28 +112,12 @@ int get_x(int y, Dot dots[21]) {
     int ans[6];
 
     for (int i=0; i<21; i++) {
-        if (dots[i].y == y && !dots[i].erased) {
+        if (dots[i].y == y) {
             ans[c] = dots[i].x;
             c++;
         }
     }
     return ans[random_int(c)];
-}
-
-void update_turn(void) {
-    temp++;
-    if (temp % 2 == 0) turn++;
-}
-
-void red_erase(int x, int y, Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
-    if (turn % 2 == 0) {
-        red_erased[red_nodes][0] = x;
-        red_erased[red_nodes][1] = y;
-
-        red_nodes++;
-
-        update_turn();
-    }
 }
 
 void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
@@ -146,7 +145,7 @@ void erase(Vector2 mouse_pos, Rectangle button, Dot dots[21], int red_erased[21]
         int y = dots[i].y;
 
         if (clicked(mouse_pos, x, y)) {
-            red_erase(x, y, dots, red_erased, blue_erased);
+            red_erase(x, y, dots, red_erased);
             dots[i].erased = true;
         }
     }
@@ -225,8 +224,9 @@ int main() {
 
         printf("----------------\n");
         for (int i=0; i<21; i++)
-            printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]);
-            /* printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
+            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
+        /*     printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]); */
+        /* printf("%d %d", get_y(dots), get_x(get_y(dots), dots)); */
 
 
         BeginDrawing();
