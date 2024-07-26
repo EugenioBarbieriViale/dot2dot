@@ -86,7 +86,8 @@ void update_dot(Dot dots[21], int ci, int pi) {
     }
 }
 
-void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int x_erased[21], int indexes[21]) {
+// int x_erased[21]
+void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int indexes[21]) {
     for (int i=0; i<21; i++) {
         int x = dots[i].x;
         int y = dots[i].y;
@@ -94,11 +95,12 @@ void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int x_er
         bool same_col = false;
         if (clicked(x,y)) {
 
-            if (dots[i].erased && (x != x_erased[temp - 1]))
+            /* if (dots[i].erased && (x != x_erased[temp - 1])) */
+            if (dots[i].erased && (i != indexes[temp - 1]))
                 same_col = true;
 
             indexes[temp] = i;
-            x_erased[temp] = x;
+            /* x_erased[temp] = x; */
 
             if (turn % 2 == 0) {
                 if (dots[i].erased && (x != red_erased[red_nodes - 1][0] || same_col)) {
@@ -178,7 +180,7 @@ int main() {
     int red_erased[21][2];
     int blue_erased[21][2];
 
-    int x_erased[21];
+    /* int x_erased[21]; */
     int indexes[21];
 
     init_points(dots);
@@ -188,7 +190,7 @@ int main() {
             end_game = true;
 
         n_erased = 0;
-        erase(dots, red_erased, blue_erased, x_erased, indexes);
+        erase(dots, red_erased, blue_erased, indexes); // x_erased
 
 
         BeginDrawing();
