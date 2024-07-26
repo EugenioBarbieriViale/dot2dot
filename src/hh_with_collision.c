@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <raylib.h>
 
 #define X 1000
@@ -8,21 +7,16 @@
 
 # define R 40
 
-typedef struct {
-    int x;
-    int y;
-    bool erased;
-} Dot;
+int pos[21][2];
 
+int red_erased[21][2];
+int blue_erased[21][2];
 int n_erased;
 
 int red_nodes = 0;
 int blue_nodes = 0;
 
 int turn = 0;
-int temp = 0;
-
-bool end_game = false;
 
 bool who_won() {
     if (n_erased >= 21) {
@@ -36,7 +30,7 @@ bool who_won() {
     return false;
 }
 
-void init_points(Dot dots[21]) {
+void draw_points(void) {
     int n = 6;
     int count = 0;
 
@@ -45,20 +39,15 @@ void init_points(Dot dots[21]) {
             int x = 300 + (2*R+20)*i;
             int y = 170 + (2*R+10)*j;
 
-            dots[count].x = x;
-            dots[count].y = y;
-            dots[count].erased = false;
+            DrawCircle(x, y, R, (Color){255,255,0,90});
+            DrawText(TextFormat("%d", count), x - 6, y - 10, 20,WHITE);
+
+            pos[count][0] = x;
+            pos[count][1] = y;
 
             count++;
         }
         n--;
-    }
-}
-
-void draw_points(Dot dots[21]) {
-    for (int i=0; i<21; i++) {
-        DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
-        DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
     }
 }
 
@@ -73,56 +62,46 @@ bool clicked(int x, int y) {
     else return false;
 }
 
-int x_erased[21];
-
-void update_dot(Dot dots[21], int cx, int px, int y) {
-    for (int i=0; i<21; i++) {
-        if (dots[i].y == y) {
-            if (cx < px)
-                if (dots[i].x >= cx && dots[i].x <= px)
-                    dots[i].erased = true;
-            else
-                if (dots[i].x >= px && dots[i].x <= cx)
-                    dots[i].erased = true;
-        }
-    }
+bool collision(int x1, int x2, int x3, int x4) {
+    if (x1 < x2)
+        if ((x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2))
+            return true;
+        else 
+            return false;
+    else 
+        if ((x3 >= x2 && x3 <= x1) || (x4 >= x2 && x4 <= x1))
+            return true;
+        else 
+            return false;
 }
 
-void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
+bool already_erased() {
+    for (int i=0; i<21; i+=2) {
+        for (int j=0; j<21; j+=2) {
+            if (red_erased[i][1] != 0 && blue_erased[i][1] != 0 && blue_erased[j+1][1] != 0)
+                if (blue_erased[i][1] == red_erased[j][1])
+                    if (collision(blue_erased[i][0], blue_erased[i+1][0], red_erased[j][0], red_erased[j+1][0]))
+                        return true;
+        }
+    }
+    return false;
+}
+
+int temp = 0;
+void erase(void) {
     for (int i=0; i<21; i++) {
-        int x = dots[i].x;
-        int y = dots[i].y;
-
-        bool same_col = false;
+        int x = pos[i][0];
+        int y = pos[i][1];
         if (clicked(x,y)) {
-
-            if (dots[i].erased && (x != x_erased[temp - 1]))
-                same_col = true;
-
-            x_erased[temp] = x;
-
             if (turn % 2 == 0) {
-                if (dots[i].erased && (x != red_erased[red_nodes - 1][0] || same_col)) {
-                    end_game = true;
-                }
-
                 red_erased[red_nodes][0] = x;
                 red_erased[red_nodes][1] = y;
                 red_nodes++;
-            }
-
-            else {
-                if (dots[i].erased && (x != blue_erased[blue_nodes - 1][0] || same_col)) {
-                    end_game = true;
-                }
-
+            } else {
                 blue_erased[blue_nodes][0] = x;
                 blue_erased[blue_nodes][1] = y;
                 blue_nodes++;
             }
-
-            update_dot(dots, x, x_erased[temp - 1], y);
-            dots[i].erased = true;
 
             temp++;
             if (temp % 2 == 0) turn++;
@@ -130,7 +109,7 @@ void erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
     }
 }
 
-void red_lines(int red_erased[21][2]) {
+void red_lines(void) {
     for (int i=1; i<red_nodes; i++)   {
         Vector2 p1 = {red_erased[i-1][0], red_erased[i-1][1]};
         Vector2 p2 = {red_erased[i][0], red_erased[i][1]};
@@ -151,7 +130,7 @@ void red_lines(int red_erased[21][2]) {
 
 }
 
-void blue_lines(int blue_erased[21][2]) {
+void blue_lines(void) {
     for (int i=1; i<blue_nodes; i++) {
         Vector2 p1 = {blue_erased[i-1][0], blue_erased[i-1][1]};
         Vector2 p2 = {blue_erased[i][0], blue_erased[i][1]};
@@ -174,32 +153,23 @@ void blue_lines(int blue_erased[21][2]) {
 int main() {
     InitWindow(X,Y, "dot2dot");
     SetTargetFPS(60);       
-    
-    Dot dots[21];
 
-    int red_erased[21][2];
-    int blue_erased[21][2];
-
-    init_points(dots);
+    bool end_game = false;
 
     while (!WindowShouldClose() && !end_game) {
-        if (who_won())
-            end_game = true;
+        if (already_erased() || who_won()) end_game = true;
 
         n_erased = 0;
-        erase(dots, red_erased, blue_erased);
-
-        printf("---------------------\n");
-        for (int i=0; i<21; i++)
-            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
+        erase();
 
         BeginDrawing();
         ClearBackground(GRAY);
         DrawText("dot2dot game - erase dots in rows!", 50, 10, 50, BLACK);
 
-        draw_points(dots);
-        red_lines(red_erased);
-        blue_lines(blue_erased);
+        draw_points();
+        red_lines();
+        blue_lines();
+
 
         EndDrawing();
     }
