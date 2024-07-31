@@ -101,23 +101,36 @@ int random_int(int range) {
 int get_y(Dot dots[21]) {
     for (int i=0; i<50; i++) {
         Dot current = dots[random_int(21)];
-        if (!current.erased)
-            return current.y;
+        return current.y;
     }
     return 0;
 }
 
 int get_x(int y, Dot dots[21]) {
     int c = 0;
-    int ans[6];
+    Dot ans[6];
 
     for (int i=0; i<21; i++) {
         if (dots[i].y == y) {
-            ans[c] = dots[i].x;
+            ans[c].x = dots[i].x;
+            ans[c].erased = dots[i].erased;
             c++;
         }
     }
-    return ans[random_int(c)];
+
+    for (int i=0; i<50; i++) {
+        Dot current = ans[random_int(c)];
+        if (!current.erased)
+            return current.x;
+    }
+    return 0;
+}
+
+int retrieve_dot(Dot dots[21], int x, int y) {
+    for (int i=0; i<21; i++)
+        if (dots[i].x == x && dots[i].y == y)
+            return i;
+    return 0;
 }
 
 void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
@@ -136,6 +149,9 @@ void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
         blue_nodes++;
 
         update_turn();
+
+        int index = retrieve_dot(dots, blue_erased[blue_nodes][0], blue_erased[blue_nodes][1]);
+        dots[index].erased = true;
     }
 }
 
