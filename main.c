@@ -101,7 +101,8 @@ int random_int(int range) {
 int get_y(Dot dots[21]) {
     for (int i=0; i<50; i++) {
         Dot current = dots[random_int(21)];
-        return current.y;
+        if (!current.erased)
+            return current.y;
     }
     return 0;
 }
@@ -109,6 +110,11 @@ int get_y(Dot dots[21]) {
 int get_x(int y, Dot dots[21]) {
     int c = 0;
     Dot ans[6];
+
+    for (int i=0; i<6; i++) {
+        ans[i].x = 0;
+        ans[i].erased = false;
+    }
 
     for (int i=0; i<21; i++) {
         if (dots[i].y == y) {
@@ -118,9 +124,16 @@ int get_x(int y, Dot dots[21]) {
         }
     }
 
+    /* printf("----------------\n"); */
+    /* printf("%d:\n", y); */
+    /* for (int i=0; i<6; i++) */ 
+    /*     printf("%d\n", ans[i].x); */
+
+    printf("------------------\n");
     for (int i=0; i<50; i++) {
         Dot current = ans[random_int(c)];
-        if (!current.erased)
+        printf("%d %d\n", i, current.x);
+        if (!current.erased && current.x != 0)
             return current.x;
     }
     return 0;
@@ -143,15 +156,14 @@ void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
         else
             blue_erased[blue_nodes][1] = blue_erased[blue_nodes - 1][1];
 
-        int rand_x = get_x(rand_y, dots);
+        int rand_x = get_x(blue_erased[blue_nodes][1], dots);
         blue_erased[blue_nodes][0] = rand_x;
-
-        blue_nodes++;
-
-        update_turn();
 
         int index = retrieve_dot(dots, blue_erased[blue_nodes][0], blue_erased[blue_nodes][1]);
         dots[index].erased = true;
+
+        blue_nodes++;
+        update_turn();
     }
 }
 
@@ -225,7 +237,7 @@ int main() {
 
     init_points(dots);
 
-	Rectangle button = {945, Y - 50, 15, 15};
+	Rectangle button = {945, Y - 50, 30, 30};
 
     bool end_game = false;
 
@@ -238,9 +250,9 @@ int main() {
         n_erased = 0;
         erase(mouse_pos, button, dots, red_erased, blue_erased);
 
-        printf("----------------\n");
-        for (int i=0; i<21; i++)
-            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
+        /* printf("----------------\n"); */
+        /* for (int i=0; i<21; i++) */
+        /*     printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
         /*     printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]); */
         /* printf("%d %d", get_y(dots), get_x(get_y(dots), dots)); */
 
