@@ -124,15 +124,8 @@ int get_x(int y, Dot dots[21]) {
         }
     }
 
-    /* printf("----------------\n"); */
-    /* printf("%d:\n", y); */
-    /* for (int i=0; i<6; i++) */ 
-    /*     printf("%d\n", ans[i].x); */
-
-    printf("------------------\n");
     for (int i=0; i<50; i++) {
         Dot current = ans[random_int(c)];
-        printf("%d %d\n", i, current.x);
         if (!current.erased && current.x != 0)
             return current.x;
     }
@@ -146,7 +139,20 @@ int retrieve_dot(Dot dots[21], int x, int y) {
     return 0;
 }
 
-void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
+void update_dot(Dot dots[21], int ci, int pi) {
+    if (temp % 2 == 1) {
+        if (ci < pi) {
+            int now = pi;
+            pi = ci;
+            ci = now;
+        }
+
+        for (int j = pi; j <= ci; j++)
+            dots[j].erased = true;
+    }
+}
+
+void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int indexes[42]) {
     if (turn % 2 == 1) {
 
         int rand_y = get_y(dots);
@@ -160,26 +166,30 @@ void blue_erase(Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
         blue_erased[blue_nodes][0] = rand_x;
 
         int index = retrieve_dot(dots, blue_erased[blue_nodes][0], blue_erased[blue_nodes][1]);
-        dots[index].erased = true;
+        indexes[temp+1] = index;
+        update_dot(dots, index, indexes[temp]);
+        /* dots[index].erased = true; */
 
         blue_nodes++;
         update_turn();
     }
 }
 
-void erase(Vector2 mouse_pos, Rectangle button, Dot dots[21], int red_erased[21][2], int blue_erased[21][2]) {
+void erase(Vector2 mouse_pos, Rectangle button, Dot dots[21], int red_erased[21][2], int blue_erased[21][2], int indexes[42]) {
     for (int i=0; i<21; i++) {
         int x = dots[i].x;
         int y = dots[i].y;
 
         if (clicked(mouse_pos, x, y)) {
             red_erase(x, y, dots, red_erased);
-            dots[i].erased = true;
+            /* dots[i].erased = true; */
+            indexes[temp] = i;
+            update_dot(dots, i, indexes[temp-1]);
         }
     }
 
     if (button_pressed(mouse_pos, button)) {
-        blue_erase(dots, red_erased, blue_erased);
+        blue_erase(dots, red_erased, blue_erased, indexes);
     }
 }
 
@@ -235,6 +245,8 @@ int main() {
     int red_erased[21][2];
     int blue_erased[21][2];
 
+    int indexes[42];
+
     init_points(dots);
 
 	Rectangle button = {945, Y - 50, 30, 30};
@@ -248,11 +260,15 @@ int main() {
             end_game = true;
 
         n_erased = 0;
-        erase(mouse_pos, button, dots, red_erased, blue_erased);
+        erase(mouse_pos, button, dots, red_erased, blue_erased, indexes);
 
         /* printf("----------------\n"); */
-        /* for (int i=0; i<21; i++) */
-        /*     printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased); */
+        /* for (int i=0; i<42; i++) */
+        /*     printf("%d\n", indexes[i]); */
+
+        printf("----------------\n");
+        for (int i=0; i<21; i++)
+            printf("%d %d %d\n", dots[i].x, dots[i].y, dots[i].erased);
         /*     printf("%d %d\n", blue_erased[i][0], blue_erased[i][1]); */
         /* printf("%d %d", get_y(dots), get_x(get_y(dots), dots)); */
 
