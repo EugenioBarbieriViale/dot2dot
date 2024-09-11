@@ -7,34 +7,29 @@ const int Y = 800;
 
 const int R = 40;
 
-typedef struct {
-    Vector2 pos;
-    bool erased;
-} Dot;
+std::vector<Vector2> dots;
 
-void init_points(Dot dots[21]) {
+std::vector<Vector2> red;
+std::vector<Vector2> blue;
+
+void init_points() {
     int n = 6;
-    int count = 0;
 
     for (int j=0; j<6; j++) {
         for (int i=0; i<n; i++) {
-            int x = 300 + (2*R+20)*i;
-            int y = 170 + (2*R+10)*j;
+            float x = 300 + (2*R+20)*i;
+            float y = 170 + (2*R+10)*j;
 
-            dots[count].pos.x = x;
-            dots[count].pos.y = y;
-            dots[count].erased = false;
-
-            count++;
+            dots.push_back((Vector2){x,y});
         }
         n--;
     }
 }
 
-void draw_points(Dot dots[21]) {
+void draw_points() {
     for (int i=0; i<21; i++) {
-        DrawCircle(dots[i].pos.x, dots[i].pos.y, R, (Color){255,255,0,90});
-        DrawText(TextFormat("%d", i), dots[i].pos.x - 6, dots[i].pos.y - 10, 20, WHITE);
+        DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
+        DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
     }
 }
 
@@ -44,37 +39,68 @@ bool clicked(Vector2 mouse_pos, Vector2 current_pos) {
     return false;
 }
 
-void decide_turn(int *turn, int *temp) {
+void update_turn(int *turn, int *temp) {
     if (*temp % 2 == 1)
         (*turn)++;
     (*temp)++;
 }
 
-void erase(Dot dots[21], Vector2 mouse_pos, std::vector<Vector2> red, std::vector<Vector2> blue, int *turn, int *temp) {
+void erase(Vector2 mouse_pos, int *turn, int *temp) {
     for (int i=0; i<21; i++) {
-        if (clicked(mouse_pos, dots[i].pos)) {
+        if (clicked(mouse_pos, dots[i])) {
 
-            if (*turn % 2 == 1) {
-                red.push_back(dots[i].pos);
+            if (*turn % 2 == 0) {
+                red.push_back(dots[i]);
             } 
             else {
-                blue.push_back(dots[i].pos);
+                blue.push_back(dots[i]);
             }
 
-            decide_turn(turn, temp);
+            update_turn(turn, temp);
         }
     }
 }
 
-void draw_lines(std::vector<Vector2> red, std::vector<Vector2> blue) {
-    for (int i = 0; i < red.size(); i++)
-        DrawLineEx(red[i-1], red[i], 5, RED);
-
-    for (int i = 0; i < blue.size(); i++)
-        DrawLineEx(blue[i-1], blue[i], 5, BLUE);
+float shift_lines(float x1, float x2) {
+    float shift = x1 - x2;
+    shift /= abs(shift);
+    shift *= 3*R/4;
+    return shift;
 }
 
-void print_v(std::vector<Vector2> red, std::vector<Vector2> blue) {
+void draw_red_lines() {
+    for (int i = 0; i < red.size(); i++) {
+        Vector2 curr = red[i];
+        Vector2 prev = red[i-1];
+
+        if (curr.y == prev.y && i % 2 == 1) {
+            float shift = shift_lines(curr.x, prev.x);
+
+            curr.x += shift; 
+            prev.x -= shift; 
+
+            DrawLineEx(curr, prev, 5, RED);
+        }
+    }
+}
+
+void draw_blue_lines() {
+    for (int i = 0; i < blue.size(); i++) {
+        Vector2 curr = blue[i];
+        Vector2 prev = blue[i-1];
+
+        if (curr.y == prev.y && i % 2 == 1) {
+            float shift = shift_lines(curr.x, prev.x);
+
+            curr.x += shift; 
+            prev.x -= shift; 
+
+            DrawLineEx(curr, prev, 5, BLUE);
+        }
+    }
+}
+
+void print_v() {
     for (auto r : red)
         std::cout << "red: " << r.x << ", " << r.y << '\n';
     for (auto b : blue)
@@ -86,29 +112,23 @@ int main() {
     InitWindow(X, Y, "dot2dot");
     SetTargetFPS(30);
 
-    Dot dots[21];
-
-    std::vector<Vector2> red;
-    std::vector<Vector2> blue;
-
     int turn = 0;
     int temp = 0;
 
-    init_points(dots);
+    init_points();
 
     while (!WindowShouldClose()) {
         Vector2 mouse_pos = GetMousePosition();
 
-        erase(dots, mouse_pos, red, blue, &turn, &temp);
-
-        std::cout << temp << "--" << turn << std::endl;
-        print_v(red, blue);
+        erase(mouse_pos, &turn, &temp);
 
         BeginDrawing();
         ClearBackground(GRAY);
 
-        draw_points(dots);
-        draw_lines(red, blue);
+        draw_points();
+
+        draw_red_lines();
+        draw_blue_lines();
 
         EndDrawing();
     }
