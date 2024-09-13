@@ -63,9 +63,13 @@ void erase(Vector2 mouse_pos, int *turn, int *temp) {
 
 float shift_lines(float x1, float x2) {
     float shift = x1 - x2;
-    shift /= abs(shift);
-    shift *= 3*R/4;
-    return shift;
+
+    if (shift != 0)
+        shift /= abs(shift);
+    else
+        return 3*R/4;
+
+    return shift * 3*R/4;
 }
 
 void draw_red_lines() {
@@ -100,7 +104,39 @@ void draw_blue_lines() {
     }
 }
 
+bool is_intersecting(Vector2 start1, Vector2 end1, Vector2 start2, Vector2 end2) {
+	float denominator = ((end1.x - start1.x) * (end2.y - start2.y)) - ((end1.y - start1.y) * (end2.x - start2.x));
+    float numerator1 = ((start1.y - start2.y) * (end2.x - start2.x)) - ((start1.x - start2.x) * (end2.y - start2.y));
+    float numerator2 = ((start1.y - start2.y) * (end1.x - start1.x)) - ((start1.x - start2.x) * (end1.y - start1.y));
+
+    if (denominator == 0)
+        return (numerator1 == 0 && numerator2 == 0);
+    
+    float r = numerator1 / denominator;
+    float s = numerator2 / denominator;
+
+    return (r > 0 && r < 1) && (s > 0 && s < 1);
+}
+
+bool check_line_collsion() {
+    bool coll = false;
+
+    for (int r = 0; r < red.size(); r += 2) {
+        for (int b = 0; b < blue.size(); b += 2) {
+
+            if (blue.size() != 0 && red.size() != 0 && blue.size() % 2 == 0 && red.size() % 2 == 0)
+                // coll = is_intersecting(red[r], red[r+1], blue[b], blue[b+1]);
+                coll = is_intersecting(blue[b], blue[b+1], red[r], red[r+1]);
+
+            if (red[r].x == red[r+1].x || blue[b].x == blue[b+1].x)
+                coll = false;
+        }
+    }
+    return coll;
+}
+
 void print_v() {
+    std::cout << "----------------\n";
     for (auto r : red)
         std::cout << "red: " << r.x << ", " << r.y << '\n';
     for (auto b : blue)
@@ -117,9 +153,11 @@ int main() {
 
     init_points();
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !check_line_collsion()) {
+    // while (!WindowShouldClose()) {
         Vector2 mouse_pos = GetMousePosition();
 
+        // print_v();
         erase(mouse_pos, &turn, &temp);
 
         BeginDrawing();
