@@ -72,7 +72,6 @@ void erase(Vector2 mouse_pos, int *turn, int *temp, int indexes[], bool *quit) {
 
             if (*turn % 2 == 0)
                 red.push_back(dots[i]);
-
             else
                 blue.push_back(dots[i]);
 
@@ -136,20 +135,15 @@ void draw_blue_lines(int *n_erased) {
 bool who_won(int n_erased, int turn) {
     if (n_erased >= 21) {
         if (turn % 2 == 0)
-            std::cout << "YOU WON" << std::endl;
+            std::cout << "RED WON" << std::endl;
         else
-            std::cout << "CHATGPT WON" << std::endl;
+            std::cout << "BLUE WON" << std::endl;
 
         return true;
     }
     return false;
 }
 
-void print_dots() {
-    for (int i=0; i<21; i++) {
-        std::cout << dots[i].x << ", " << dots[i].y << " -> " << erased_dots[i] << std::endl;
-    }
-}
 
 int main() {
     InitWindow(X, Y, "dot2dot");
@@ -181,8 +175,6 @@ int main() {
         EndDrawing();
 
         quit = who_won(n_erased, turn);
-
-        // print_dots();
     }
 
     return 0;
