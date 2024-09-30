@@ -4,7 +4,7 @@ file = open("openai-key")
 key = file.readline(164)
 file.close()
 
-url = "https://api.openai.com/v1/models/"
+url = "https://api.openai.com/v1/chat/completions"
 
 headers = {
     "Content-Type": "application/json",
@@ -12,10 +12,10 @@ headers = {
 }
 
 data = {
-    "model": "gpt-4o-mini",
+    "model": "gpt-3.5-turbo",
     "messages": [{"role": "user", "content": "Say this is a test!"}],
-    "temperature": 0.7
+    "temperature": 0
 }
 
-response = requests.post(url, headers=headers, data=data)
+response = requests.post(url, headers=headers, json=data)
 print(response.json())
