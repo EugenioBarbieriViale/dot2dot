@@ -97,7 +97,7 @@ float shift_lines(float x1, float x2) {
 }
 
 void draw_red_lines(int *n_erased) {
-    for (int i = 0; i < red.size(); i++) {
+    for (int i = 1; i < red.size(); i++) {
         Vector2 curr = red[i];
         Vector2 prev = red[i-1];
 
@@ -115,7 +115,7 @@ void draw_red_lines(int *n_erased) {
 }
 
 void draw_blue_lines(int *n_erased) {
-    for (int i = 0; i < blue.size(); i++) {
+    for (int i = 1; i < blue.size(); i++) {
         Vector2 curr = blue[i];
         Vector2 prev = blue[i-1];
 
