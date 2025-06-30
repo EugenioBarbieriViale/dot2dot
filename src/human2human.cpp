@@ -22,7 +22,7 @@ void init_points(std::vector<Vector2>& dots, std::vector<bool>& erased_dots) {
     }
 }
 
-void draw_points(std::vector<Vector2> dots) {
+void draw_points(const std::vector<Vector2>& dots) {
     for (int i=0; i<21; i++) {
         DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
         DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
@@ -58,25 +58,7 @@ void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& 
     }
 }
 
-void erase(std::vector<Vector2>& red, std::vector<Vector2>& blue, std::vector<Vector2> dots, std::vector<bool>& erased_dots, Vector2 mouse_pos, int& turn, int& temp, int indexes[], bool& quit) {
-
-    for (int i=0; i<21; i++) {
-        if (clicked(mouse_pos, dots[i])) {
-
-            indexes[temp] = i;
-
-            if (turn % 2 == 0)
-                red.push_back(dots[i]);
-            else
-                blue.push_back(dots[i]);
-
-            update_dot(erased_dots, temp, i, indexes[temp-1], quit);
-            update_turn(turn, temp);
-        }
-    }
-}
-
-int count_erased(std::vector<bool> erased_dots) {
+int count_erased(const std::vector<bool>& erased_dots) {
     int count = 0;
     for (auto x:erased_dots) {
         if (x) {
@@ -97,7 +79,7 @@ float shift_lines(float x1, float x2) {
     return shift * 3*R/4;
 }
 
-void draw_red_lines(std::vector<Vector2> red) {
+void draw_red_lines(const std::vector<Vector2>& red) {
     for (int i = 1; i < red.size(); i++) {
         Vector2 curr = red[i];
         Vector2 prev = red[i-1];
@@ -113,7 +95,7 @@ void draw_red_lines(std::vector<Vector2> red) {
     }
 }
 
-void draw_blue_lines(std::vector<Vector2> blue) {
+void draw_blue_lines(const std::vector<Vector2>& blue) {
     for (int i = 1; i < blue.size(); i++) {
         Vector2 curr = blue[i];
         Vector2 prev = blue[i-1];
@@ -167,7 +149,20 @@ int main() {
 
         Vector2 mouse_pos = GetMousePosition();
 
-        erase(red, blue, dots, erased_dots, mouse_pos, turn, temp, indexes, collision);
+        for (int i=0; i<21; i++) {
+            if (clicked(mouse_pos, dots[i])) {
+
+                indexes[temp] = i;
+
+                if (turn % 2 == 0)
+                    red.push_back(dots[i]);
+                else
+                    blue.push_back(dots[i]);
+
+                update_dot(erased_dots, temp, i, indexes[temp-1], quit);
+                update_turn(turn, temp);
+            }
+        }
 
         BeginDrawing();
         ClearBackground(GRAY);
