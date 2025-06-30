@@ -22,9 +22,9 @@ void init_points(std::vector<Vector2>& dots, std::vector<bool>& erased_dots) {
     }
 }
 
-void draw_points(const std::vector<Vector2>& dots) {
+void draw_points(const std::vector<Vector2>& dots, Color c) {
     for (int i=0; i<21; i++) {
-        DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
+        DrawCircle(dots[i].x, dots[i].y, R, c);
         DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
     }
 }
@@ -134,6 +134,8 @@ int main() {
     std::vector<Vector2> red;
     std::vector<Vector2> blue;
 
+    Color c = YELLOW;
+
     int turn = 0;
     int temp = 0;
     int indexes[21];
@@ -165,9 +167,9 @@ int main() {
         }
 
         BeginDrawing();
-        ClearBackground(GRAY);
+        ClearBackground(VIOLET);
 
-        draw_points(dots);
+        draw_points(dots, c);
 
         draw_red_lines(red);
         draw_blue_lines(blue);

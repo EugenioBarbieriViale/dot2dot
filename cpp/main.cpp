@@ -22,9 +22,9 @@ void init_points(std::vector<Vector2>& dots, std::vector<bool>& erased_dots) {
     }
 }
 
-void draw_points(const std::vector<Vector2>& dots) {
+void draw_points(const std::vector<Vector2>& dots, Color c) {
     for (int i=0; i<21; i++) {
-        DrawCircle(dots[i].x, dots[i].y, R, (Color){255,255,0,90});
+        DrawCircle(dots[i].x, dots[i].y, R, c);
         DrawText(TextFormat("%d", i), dots[i].x - 6, dots[i].y - 10, 20, WHITE);
     }
 }
@@ -123,8 +123,18 @@ bool who_won(int n_erased, int turn) {
     return false;
 }
 
+std::vector<int> generate() {
+    std::vector<int> idxs;
+    idxs.push_back(std::rand() % 7);
+    idxs.push_back(std::rand() % (6 - idxs[0]));
+    std::cout << idxs[0] << " " << idxs[1] << "\n";
+    return idxs;
+}
+
 
 int main() {
+    std::srand(time(0));
+
     InitWindow(X, Y, "dot2dot");
     SetTargetFPS(30);
 
@@ -133,6 +143,8 @@ int main() {
 
     std::vector<Vector2> red;
     std::vector<Vector2> blue;
+
+    Color c = ORANGE;
 
     int turn = 0;
     int temp = 0;
@@ -154,20 +166,33 @@ int main() {
 
                 indexes[temp] = i;
 
-                if (turn % 2 == 0)
+                if (turn % 2 == 0) {
                     red.push_back(dots[i]);
-                else
-                    blue.push_back(dots[i]);
+                }
 
                 update_dot(erased_dots, temp, i, indexes[temp-1], quit);
                 update_turn(turn, temp);
             }
         }
 
-        BeginDrawing();
-        ClearBackground(GRAY);
+        if (clicked(mouse_pos, Vector2 {50,50})) {
+            std::vector<int> idxs = generate();
+            
+            if (turn % 2 == 1) {
+                blue.push_back(dots[idxs[0]]);
+                blue.push_back(dots[idxs[1]]);
+            }
 
-        draw_points(dots);
+            update_dot(erased_dots, temp, idxs[0], idxs[1], quit);
+            turn++;
+        }
+
+        BeginDrawing();
+        ClearBackground(BLUE);
+
+        DrawCircle(50, 50, R, c);
+
+        draw_points(dots, c);
 
         draw_red_lines(red);
         draw_blue_lines(blue);
