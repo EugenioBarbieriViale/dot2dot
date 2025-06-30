@@ -37,8 +37,8 @@ bool clicked(Vector2 mouse_pos, Vector2 current_pos) {
 
 void update_turn(int& turn, int& temp) {
     if (temp % 2 == 1)
-        (turn)++;
-    (temp)++;
+        turn++;
+    temp++;
 }
 
 void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& quit) {
