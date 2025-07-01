@@ -169,7 +169,7 @@ int main() {
         ClearBackground(bg_c);
 
         if (n_erased >= 21) {
-            WaitTime(2);
+            WaitTime(1);
             DrawRectangle(0, 0, X, Y, bg_c);
 
             if (turn % 2 == 0)

@@ -142,6 +142,7 @@ std::vector<int> generate(const std::vector<bool>& erased_dots) {
         }
 
         c++;
+        // std::cout << c << "\n";
 
     } while ((erased_dots[i1] || erased_dots[i2] || go) && c <= 1000);
 
@@ -150,7 +151,6 @@ std::vector<int> generate(const std::vector<bool>& erased_dots) {
 
     return idxs;
 }
-
 
 
 int main() {
@@ -210,7 +210,7 @@ int main() {
         ClearBackground(bg_c);
 
         if (n_erased >= 21) {
-            WaitTime(2);
+            WaitTime(1);
             DrawRectangle(0, 0, X, Y, bg_c);
 
             if (turn % 2 == 0)
