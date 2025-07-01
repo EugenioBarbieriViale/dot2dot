@@ -224,7 +224,6 @@ int main() {
         }
 
         else if (collision) {
-            WaitTime(2);
             DrawRectangle(0, 0, X, Y, bg_c);
             DrawText("COLLISION", 110, Y/2-60, 150, c);
         }

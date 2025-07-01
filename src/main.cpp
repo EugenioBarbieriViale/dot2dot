@@ -125,9 +125,22 @@ bool who_won(int n_erased, int turn) {
 
 std::vector<int> generate() {
     std::vector<int> idxs;
-    idxs.push_back(std::rand() % 7);
-    idxs.push_back(std::rand() % (6 - idxs[0]));
-    std::cout << idxs[0] << " " << idxs[1] << "\n";
+
+    int col = std::rand() % 6;
+
+    int i1 = (std::rand() % (6 - col));
+    int i2 = (std::rand() % (6 - col));
+
+    for (int i=0; i<col; i++) {
+        i1 += (6 - i);
+        i2 += (6 - i);
+    }
+    
+    idxs.push_back(i1);
+    idxs.push_back(i2);
+
+    std::cout << i1 << " " << i2 << "\n";
+
     return idxs;
 }
 
@@ -148,7 +161,7 @@ int main() {
 
     int turn = 0;
     int temp = 0;
-    int indexes[21];
+    int indexes[2];
 
     bool quit = false;
     bool collision = false;
@@ -163,39 +176,36 @@ int main() {
 
         for (int i=0; i<21; i++) {
             if (clicked(mouse_pos, dots[i])) {
-
-                indexes[temp] = i;
-
                 if (turn % 2 == 0) {
-                    red.push_back(dots[i]);
-                }
+                    indexes[temp % 2] = i;
 
-                update_dot(erased_dots, temp, i, indexes[temp-1], quit);
-                update_turn(turn, temp);
+                    red.push_back(dots[i]);
+
+                    update_dot(erased_dots, temp, i, indexes[(temp % 2) - 1], quit);
+                    update_turn(turn, temp);
+                }
             }
         }
 
-        if (clicked(mouse_pos, Vector2 {50,50})) {
+        if (turn % 2 == 1) {
             std::vector<int> idxs = generate();
-            
-            if (turn % 2 == 1) {
-                blue.push_back(dots[idxs[0]]);
-                blue.push_back(dots[idxs[1]]);
-            }
 
+            blue.push_back(dots[idxs[0]]);
+            blue.push_back(dots[idxs[1]]);
+
+            temp++;
             update_dot(erased_dots, temp, idxs[0], idxs[1], quit);
-            turn++;
+
+            update_turn(turn, temp);
         }
 
         BeginDrawing();
-        ClearBackground(BLUE);
-
-        DrawCircle(50, 50, R, c);
+        ClearBackground(BROWN);
 
         draw_points(dots, c);
 
-        draw_red_lines(red);
         draw_blue_lines(blue);
+        draw_red_lines(red);
 
         EndDrawing();
     }
