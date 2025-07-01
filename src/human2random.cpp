@@ -118,7 +118,6 @@ std::vector<int> generate(const std::vector<bool>& erased_dots) {
     int c = 0;
     bool go = false;
 
-    std::cout << "-----------" << "\n";
     do {
         go = false;
         int col = std::rand() % 6;
@@ -137,15 +136,12 @@ std::vector<int> generate(const std::vector<bool>& erased_dots) {
             i1 = now;
         }
 
-        // std::cout << i1 << " " << i2 << "\n";
-
         for (int j = i1; j <= i2; j++) {
             if (erased_dots[j])
                 go = true;
         }
 
         c++;
-        std::cout << c << "\n";
 
     } while ((erased_dots[i1] || erased_dots[i2] || go) && c <= 1000);
 
