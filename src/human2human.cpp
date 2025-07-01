@@ -41,7 +41,7 @@ void update_turn(int& turn, int& temp) {
     temp++;
 }
 
-void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& quit) {
+void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& coll) {
     if (temp % 2 == 1) {
         if (ci < pi) {
             int now = pi;
@@ -53,7 +53,7 @@ void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& 
             if (!erased_dots[j])
                 erased_dots[j] = true;
             else
-                quit = true;
+                coll = true;
         }
     }
 }
@@ -135,19 +135,18 @@ int main() {
     std::vector<Vector2> blue;
 
     Color c = GOLD;
+    Color bg_c = DARKPURPLE;
 
     int turn = 0;
     int temp = 0;
     int indexes[21];
 
-    bool quit = false;
     bool collision = false;
 
     init_points(dots, erased_dots);
 
-    while (!WindowShouldClose() && !quit && !collision) {
+    while (!WindowShouldClose()) {
         int n_erased = count_erased(erased_dots);
-        quit = who_won(n_erased, turn);
 
         Vector2 mouse_pos = GetMousePosition();
 
@@ -161,18 +160,35 @@ int main() {
                 else
                     blue.push_back(dots[i]);
 
-                update_dot(erased_dots, temp, i, indexes[temp-1], quit);
+                update_dot(erased_dots, temp, i, indexes[temp-1], collision);
                 update_turn(turn, temp);
             }
         }
 
         BeginDrawing();
-        ClearBackground(DARKPURPLE);
+        ClearBackground(bg_c);
 
-        draw_points(dots, c);
+        if (n_erased >= 21) {
+            WaitTime(2);
+            DrawRectangle(0, 0, X, Y, bg_c);
 
-        draw_red_lines(red);
-        draw_blue_lines(blue);
+            if (turn % 2 == 0)
+                DrawText("RED WON", 175, Y/2-60, 150, RED);
+            else
+                DrawText("BLUE WON", 120, Y/2-60, 150, BLUE);
+        }
+
+        else if (collision) {
+            DrawRectangle(0, 0, X, Y, bg_c);
+            DrawText("COLLISION", 110, Y/2-60, 150, c);
+        }
+
+        else {
+            draw_points(dots, c);
+
+            draw_blue_lines(blue);
+            draw_red_lines(red);
+        }
 
         EndDrawing();
     }

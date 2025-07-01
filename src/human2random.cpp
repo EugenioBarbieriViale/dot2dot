@@ -41,7 +41,7 @@ void update_turn(int& turn, int& temp) {
     temp++;
 }
 
-void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& quit) {
+void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& coll) {
     if (temp % 2 == 1) {
         if (ci < pi) {
             int now = pi;
@@ -53,7 +53,7 @@ void update_dot(std::vector<bool>& erased_dots, int temp, int ci, int pi, bool& 
             if (!erased_dots[j])
                 erased_dots[j] = true;
             else
-                quit = true;
+                coll = true;
         }
     }
 }
@@ -111,38 +111,50 @@ void draw_blue_lines(const std::vector<Vector2>& blue) {
     }
 }
 
-bool who_won(int n_erased, int turn) {
-    if (n_erased >= 21) {
-        if (turn % 2 == 0)
-            std::cout << "RED WON" << std::endl;
-        else
-            std::cout << "BLUE WON" << std::endl;
-
-        return true;
-    }
-    return false;
-}
-
-std::vector<int> generate() {
+std::vector<int> generate(const std::vector<bool>& erased_dots) {
     std::vector<int> idxs;
 
-    int col = std::rand() % 6;
+    int i1, i2;
+    int c = 0;
+    bool go = false;
 
-    int i1 = (std::rand() % (6 - col));
-    int i2 = (std::rand() % (6 - col));
+    std::cout << "-----------" << "\n";
+    do {
+        go = false;
+        int col = std::rand() % 6;
 
-    for (int i=0; i<col; i++) {
-        i1 += (6 - i);
-        i2 += (6 - i);
-    }
-    
+        i1 = (std::rand() % (6 - col));
+        i2 = (std::rand() % (6 - col));
+
+        for (int i=0; i<col; i++) {
+            i1 += (6 - i);
+            i2 += (6 - i);
+        }
+
+        if (i1 > i2) {
+            int now = i2;
+            i2 = i1;
+            i1 = now;
+        }
+
+        // std::cout << i1 << " " << i2 << "\n";
+
+        for (int j = i1; j <= i2; j++) {
+            if (erased_dots[j])
+                go = true;
+        }
+
+        c++;
+        std::cout << c << "\n";
+
+    } while ((erased_dots[i1] || erased_dots[i2] || go) && c <= 1000);
+
     idxs.push_back(i1);
     idxs.push_back(i2);
 
-    std::cout << i1 << " " << i2 << "\n";
-
     return idxs;
 }
+
 
 
 int main() {
@@ -158,21 +170,32 @@ int main() {
     std::vector<Vector2> blue;
 
     Color c = ORANGE;
+    Color bg_c = BROWN;
 
     int turn = 0;
     int temp = 0;
     int indexes[2];
 
-    bool quit = false;
     bool collision = false;
 
     init_points(dots, erased_dots);
 
-    while (!WindowShouldClose() && !quit && !collision) {
+    while (!WindowShouldClose()) {
         int n_erased = count_erased(erased_dots);
-        quit = who_won(n_erased, turn);
 
         Vector2 mouse_pos = GetMousePosition();
+
+        if (turn % 2 == 1 && n_erased < 21) {
+            std::vector<int> idxs = generate(erased_dots);
+
+            blue.push_back(dots[idxs[0]]);
+            blue.push_back(dots[idxs[1]]);
+
+            temp++;
+            update_dot(erased_dots, temp, idxs[0], idxs[1], collision);
+
+            update_turn(turn, temp);
+        }
 
         for (int i=0; i<21; i++) {
             if (clicked(mouse_pos, dots[i])) {
@@ -181,31 +204,37 @@ int main() {
 
                     red.push_back(dots[i]);
 
-                    update_dot(erased_dots, temp, i, indexes[(temp % 2) - 1], quit);
+                    update_dot(erased_dots, temp, i, indexes[(temp % 2) - 1], collision);
                     update_turn(turn, temp);
                 }
             }
         }
 
-        if (turn % 2 == 1) {
-            std::vector<int> idxs = generate();
+        BeginDrawing();
+        ClearBackground(bg_c);
 
-            blue.push_back(dots[idxs[0]]);
-            blue.push_back(dots[idxs[1]]);
+        if (n_erased >= 21) {
+            WaitTime(2);
+            DrawRectangle(0, 0, X, Y, bg_c);
 
-            temp++;
-            update_dot(erased_dots, temp, idxs[0], idxs[1], quit);
-
-            update_turn(turn, temp);
+            if (turn % 2 == 0)
+                DrawText("RED WON", 175, Y/2-60, 150, RED);
+            else
+                DrawText("BLUE WON", 120, Y/2-60, 150, BLUE);
         }
 
-        BeginDrawing();
-        ClearBackground(BROWN);
+        else if (collision) {
+            WaitTime(2);
+            DrawRectangle(0, 0, X, Y, bg_c);
+            DrawText("COLLISION", 110, Y/2-60, 150, c);
+        }
 
-        draw_points(dots, c);
+        else {
+            draw_points(dots, c);
 
-        draw_blue_lines(blue);
-        draw_red_lines(red);
+            draw_blue_lines(blue);
+            draw_red_lines(red);
+        }
 
         EndDrawing();
     }
