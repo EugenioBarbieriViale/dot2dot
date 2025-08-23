@@ -1,0 +1,20 @@
+html,
+body {
+  height: 100%;
+}
+
+body,
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  position: relative;
+  font-family: Helvetica;
+}
+
+canvas {
+  border: 1px solid;
+}
