@@ -10,6 +10,10 @@ class Game {
         this.dots = [];
         this.initDots();
 
+        this.temp = 0;
+        this.turn = 0;
+        this.pair = [];
+
         this.canvas = document.getElementById("game");
         this.ctx = this.canvas.getContext("2d");
 
@@ -18,13 +22,28 @@ class Game {
         this.getMousePosition = this.getMousePosition.bind(this);
         this.draw = this.draw.bind(this);
         this.clicked = this.clicked.bind(this);
-        // this.erase = this.erase.bind(this);
+        this.erase = this.erase.bind(this);
+    }
+
+    initDots() {
+        let c = 0;
+        for (let i = 0; i < this.n; i++) {
+            for (let j = 0; j < (this.n - i); j++) {
+
+                let x = 40 + (2 * this.r + 20) * j;
+                let y = 60 + (2 * this.r + 10) * i;
+                
+                this.dots.push([x, y, false, c]);
+                c++;
+            }
+        }
     }
 
     getMousePosition(event) {
         const rect = this.canvas.getBoundingClientRect();
         this.mouse_x = event.pageX - rect.left;
         this.mouse_y = event.pageY - rect.top;
+        // console.log(this.mouse_x + ", " + this.mouse_y);
     }
 
     clicked(dot) {
@@ -34,15 +53,20 @@ class Game {
         return dist < this.r;
     }
 
-    initDots() {
-        for (let i = 0; i < this.n; i++) {
-            for (let j = 0; j < (this.n - i); j++) {
+    erase() {
+        if (this.pair.length == 0 || this.pair[0][1] != this.pair[1][1]) {
+            return
+        }
+        
+        let i1 = this.pair[0][3];
+        let i2 = this.pair[1][3];
 
-                let x = 40 + (2 * this.r + 20) * j;
-                let y = 60 + (2 * this.r + 10) * i;
-                
-                this.dots.push([x, y, false]);
-            }
+        if (i1 > i2) {
+            i2 = [i1, i1 = i2][0];
+        }
+
+        for (let i=i1; i <= i2; i++) {
+            this.dots[i][2] = true;
         }
     }
 
@@ -51,8 +75,20 @@ class Game {
         this.ctx.save();
 
         for (let i=0; i<this.dots.length; i++) {
+
             if (this.clicked(this.dots[i])) {
-                this.dots[i][2] = true;
+                this.pair.push(this.dots[i]);
+                this.temp++;
+
+                if (this.temp % 2 == 0) {
+                    this.erase();
+                    this.pair = [];
+
+                    turn++;
+                }
+
+                this.mouse_x = 0;
+                this.mouse_y = 0;
             }
 
             let dot = this.dots[i];
