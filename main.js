@@ -84,7 +84,7 @@ class Game {
                     this.erase();
                     this.pair = [];
 
-                    turn++;
+                    this.turn++;
                 }
 
                 this.mouse_x = 0;
