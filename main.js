@@ -54,6 +54,7 @@ class Game {
     }
 
     erase() {
+        // test
         if (this.pair.length == 0 || this.pair[0][1] != this.pair[1][1]) {
             return
         }
