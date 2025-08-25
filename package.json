@@ -1,0 +1,25 @@
+{
+  "name": "dot2dot-miniapp",
+  "version": "1.0.0",
+  "description": "https://eugeniobarbieriviale.github.io/dot2dot-telegram/",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EugenioBarbieriViale/dot2dot-miniapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EugenioBarbieriViale/dot2dot-miniapp/issues"
+  },
+  "homepage": "https://github.com/EugenioBarbieriViale/dot2dot-miniapp#readme",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "telegraf": "^4.16.3"
+  }
+}

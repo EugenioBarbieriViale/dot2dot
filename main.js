@@ -1,3 +1,10 @@
+const tg = window.Telegram.WebApp;
+
+tg.expand();
+tg.enableClosingConfirmation();
+
+const theme = tg.themeParams;
+document.body.style.background = theme.bg_color || '#ffffff';
 
 class Game {
     constructor(n, r, w, h) {
@@ -12,17 +19,21 @@ class Game {
 
         this.temp = 0;
         this.turn = 0;
+        this.end = 0;
+
         this.pair = [];
 
         this.canvas = document.getElementById("game");
         this.ctx = this.canvas.getContext("2d");
+        this.ctx.font = "30px Helvetica";
 
         this.canvas.addEventListener("mousedown", this.getMousePosition.bind(this));
 
         this.getMousePosition = this.getMousePosition.bind(this);
-        this.draw = this.draw.bind(this);
         this.clicked = this.clicked.bind(this);
         this.erase = this.erase.bind(this);
+        this.draw = this.draw.bind(this);
+        this.showText = this.showText.bind(this);
     }
 
     initDots() {
@@ -31,7 +42,7 @@ class Game {
             for (let j = 0; j < (this.n - i); j++) {
 
                 let x = 40 + (2 * this.r + 20) * j;
-                let y = 60 + (2 * this.r + 10) * i;
+                let y = 85 + (2 * this.r + 10) * i;
                 
                 this.dots.push([x, y, false, c]);
                 c++;
@@ -43,7 +54,6 @@ class Game {
         const rect = this.canvas.getBoundingClientRect();
         this.mouse_x = event.pageX - rect.left;
         this.mouse_y = event.pageY - rect.top;
-        // console.log(this.mouse_x + ", " + this.mouse_y);
     }
 
     clicked(dot) {
@@ -54,7 +64,6 @@ class Game {
     }
 
     erase() {
-        // test
         if (this.pair.length == 0 || this.pair[0][1] != this.pair[1][1]) {
             return
         }
@@ -67,7 +76,33 @@ class Game {
         }
 
         for (let i=i1; i <= i2; i++) {
+            if (this.dots[i][2]) {
+                this.end = 21;
+                break;
+            }
+
             this.dots[i][2] = true;
+            this.end++;
+        }
+    }
+
+    showText() {
+        let player_msg = "";
+        if (this.turn % 2 == 0) {
+            player_msg = "player 1";
+        }
+        else {
+            player_msg = "player 2";
+        }
+
+        if (this.end == 21) {
+            this.ctx.font = "40px Helvetica";
+            this.ctx.fillStyle = "#000000";
+            this.ctx.fillText(player_msg + " won", 70, 200);
+        }
+        else {
+            this.ctx.fillText(player_msg, 130, 38);
+            this.ctx.fillText("dot2dot", 260, 350);
         }
     }
 
@@ -94,17 +129,21 @@ class Game {
 
             let dot = this.dots[i];
 
-            if (!dot[2]) {
-                this.ctx.fillStyle = "black";
-            }
-            else {
-                this.ctx.fillStyle = "white";
-            }
+            if (this.end != 21) {
+                if (!dot[2]) {
+                    this.ctx.fillStyle = "black";
+                }
+                else {
+                    this.ctx.fillStyle = "white";
+                }
 
-            this.ctx.beginPath();
-            this.ctx.arc(dot[0], dot[1], this.r, 0, Math.PI * 2);
-            this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(dot[0], dot[1], this.r, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
         } 
+
+        this.showText();
 
         this.ctx.restore();
 
