@@ -1,3 +1,5 @@
+const ws = new WebSocket('http://127.0.0.1:8000/');
+
 const tg = window.Telegram.WebApp;
 
 tg.expand();

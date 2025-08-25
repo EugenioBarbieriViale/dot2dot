@@ -17,11 +17,3 @@ bot.command('start', (ctx) => {
 });
 
 bot.launch();
-
-
-// const bot = new Telegraf(process.env.TOKEN);
-// bot.start((ctx) => ctx.reply('Welcome! I am your Telegram bot.'));
-// bot.help((ctx) => ctx.reply('How can I assist you?'));
-// bot.on('text', (ctx) => ctx.reply(`You said: ${ctx.message.text}`));
-
-// bot.launch();
