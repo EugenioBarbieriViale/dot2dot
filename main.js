@@ -47,7 +47,7 @@ class Game {
                 let x = 40 + (2 * this.r + 20) * j;
                 let y = 85 + (2 * this.r + 10) * i;
                 
-                this.dots.push([x, y, false, c]);
+                this.dots.push([x, y, false, c, false]);
                 c++;
             }
         }
@@ -67,8 +67,13 @@ class Game {
     }
 
     erase() {
-        if (this.pair.length == 0 || this.pair[0][1] != this.pair[1][1]) {
-            return
+        if (this.pair.length == 0) {
+            return;
+        }
+
+        if (this.pair[0][1] != this.pair[1][1]) {
+            this.end = 21;
+            return;
         }
         
         let i1 = this.pair[0][3];
@@ -87,7 +92,6 @@ class Game {
             this.dots[i][2] = true;
             this.end++;
         }
-        console.log(this.end);
     }
 
     showText() {
@@ -117,8 +121,9 @@ class Game {
         this.ctx.save();
 
         for (let i=0; i<this.dots.length; i++) {
-
             if (this.clicked(this.dots[i])) {
+                this.dots[i][4] = true;
+
                 this.pair.push(this.dots[i]);
                 this.temp++;
 
@@ -136,11 +141,14 @@ class Game {
             let dot = this.dots[i];
 
             if (this.end != 21) {
-                if (!dot[2]) {
+                if (!dot[2] && !dot[4]) {
                     this.ctx.fillStyle = "black";
                 }
-                else {
+                else if (dot[2]) {
                     this.ctx.fillStyle = "white";
+                }
+                else {
+                    this.ctx.fillStyle = "grey";
                 }
 
                 this.ctx.beginPath();
