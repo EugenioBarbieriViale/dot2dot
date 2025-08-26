@@ -1,4 +1,4 @@
-const ws = new WebSocket('http://127.0.0.1:8000/');
+// const ws = new WebSocket('http://127.0.0.1:8000/');
 
 const tg = window.Telegram.WebApp;
 
@@ -26,6 +26,7 @@ class Game {
         this.pair = [];
 
         this.canvas = document.getElementById("game");
+        this.canvas.style.background = "white";
         this.ctx = this.canvas.getContext("2d");
         this.ctx.font = "30px Helvetica";
 
@@ -86,6 +87,7 @@ class Game {
             this.dots[i][2] = true;
             this.end++;
         }
+        console.log(this.end);
     }
 
     showText() {
@@ -103,8 +105,10 @@ class Game {
             this.ctx.fillText(player_msg + " won", 70, 200);
         }
         else {
+            this.ctx.save();
             this.ctx.fillText(player_msg, 130, 38);
             this.ctx.fillText("dot2dot", 260, 350);
+            this.ctx.restore();
         }
     }
 
@@ -144,10 +148,9 @@ class Game {
                 this.ctx.fill();
             }
         } 
+        this.ctx.restore();
 
         this.showText();
-
-        this.ctx.restore();
 
         requestAnimationFrame(this.draw);
     }
