@@ -1,5 +1,5 @@
 // const ws = new WebSocket('ws://localhost:8080');
-const ws = new WebSocket("https://eugeniobarbieriviale.github.io/dot2dot-telegram/");
+const ws = new WebSocket("ws://eugeniobarbieriviale.github.io/dot2dot-telegram/");
 
 canvas = document.getElementById("game");
 canvas.style.background = "white";
