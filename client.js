@@ -5,14 +5,19 @@ canvas = document.getElementById("game");
 canvas.style.background = "white";
 
 
-let w = 375;
-let h = 375;
-
-
-const game = new Game(canvas, 6, 20, w, h);
+const game = new Game(canvas, 6, 20, 375, 375);
 game.run();
 
 const gameState = game.dots;
+
+canvas.addEventListener("mousedown", () => {
+    if (game.temp % 2 == 0) {
+        ws.send(JSON.stringify({
+            type: "gameState",
+            data: gameState,
+        }));
+    }
+});
 
 ws.onopen = function(event) {
     console.log("You are connected to the server");
@@ -21,11 +26,7 @@ ws.onopen = function(event) {
 ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
     console.log(data);
-
-    ws.send(JSON.stringify({
-        type: "gameState",
-        data: gameState,
-    }));
+    // game.dots = data;
 }
 
 ws.onclose = function(event) {
@@ -35,4 +36,3 @@ ws.onclose = function(event) {
 ws.onerror = function(event) {
     console.log("Server is down");
 }
-

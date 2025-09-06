@@ -12,13 +12,18 @@ function broadcast(data) {
 }
 
 wss.on('connection', function connection(ws) {
-    broadcast({
-        type: "init",
-        data: "connection established",
-    });
-
+    // broadcast({
+    //     type: "init",
+    //     data: "connection established",
+    // });
+    
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         console.log(data);
+
+        broadcast({
+            type: "update",
+            data: data,
+        });
     }
 });
