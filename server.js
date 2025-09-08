@@ -90,17 +90,12 @@ function broadcast(data) {
     });
 }
 
-function remove(subarray, array) {
-    let counter = 0;
+function remove(playerId, array) {
+    const playerNumber = array[playerId.length - 1];
+    array.splice(playerNumber - 1, 1);
 
-    for (let playerId of subarray) {
-        const playerNumber = array[playerId.length - 1];
-        array.splice(playerNumber - 1, 1);
+    playerCount--;
 
-        counter++;
-    }
-
-    playerCount -= counter;
     return array;
 }
 
@@ -148,7 +143,9 @@ function handlePlayer(playerId, ws) {
                     });
 
                     players = [];
-                    waitList = remove([waitList[0], waitList[1]], waitList);
+
+                    waitList = remove(waitList[0], waitList);
+                    waitList = remove(waitList[1], waitList);
 
                     erased = 0;
                 }
@@ -185,7 +182,7 @@ server.on('connection', function connection(ws) {
     ws.on('close', function() {
         console.log(`${playerId} has disconnected`);
 
-        players = remove([playerId], players);
+        players = remove(playerId, players);
     });
 });
 
