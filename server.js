@@ -1,13 +1,18 @@
-const port = 8080;
-
 const WebSocket = require('ws');
+
+const port = 8080;
 const server = new WebSocket.Server({ port });
 
-const n = 6;
+const n  = 6;
 const r = 20;
+
+let erased = 0;
 
 let players = [];
 let playerCount = 0;
+
+let waitList = [];
+
 
 function initDots() {
     let ans = [];
@@ -45,6 +50,7 @@ function updateGameState(pairIndex, currentGameState) {
         for (let i = i1; i <= i2; i++) {
             if (newGameState[i][2]) break;
             newGameState[i][2] = true;
+            erased++;
         }
     }
 
@@ -52,10 +58,28 @@ function updateGameState(pairIndex, currentGameState) {
         for (let i = i1; i >= i2; i--) {
             if (newGameState[i][2]) break;
             newGameState[i][2] = true;
+            erased++;
         }
     }
 
     return newGameState;
+}
+
+function isToPlay() {
+    let play;
+
+    if (players.length == 2) {
+        play = true;
+    } else {
+        play = false;
+    }
+
+    broadcast({
+        type: "can_play",
+        message: play,
+    });
+
+    return play;
 }
 
 function broadcast(data) {
@@ -66,39 +90,46 @@ function broadcast(data) {
     });
 }
 
-server.on('connection', function connection(ws) {
-    playerCount++;
+function remove(subarray, array) {
+    let counter = 0;
 
-    let playerId = "player" + playerCount;
-    console.log(playerId + " has connected!");
+    for (let playerId of subarray) {
+        const playerNumber = array[playerId.length - 1];
+        array.splice(playerNumber - 1, 1);
 
-    players.push(playerId);
-
-    if (players.length >= 2) {
-        ws.send(JSON.stringify({
-            type: "overflow",
-            message: "Two users are already playing!",
-        }));
+        counter++;
     }
-    
+
+    playerCount -= counter;
+    return array;
+}
+
+let turn = 0;
+function handlePlayer(playerId, ws) {
+
     let dots = initDots();
     let pairIndex = [];
-    let turn = 0;
+    let play = false;
 
-    broadcast({
+    ws.send(JSON.stringify({
         type: 'init',
         playerId: playerId,
+        whoMovesFirst: players[0],
         gameState: dots,
-    });
+    }));
 
-    // console.log(players[turn % 2]);
-    console.log(players);
+    play = isToPlay();
 
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
-        if (data.type == "update" && data.playerId == players[turn % 2]) {
-        // if (data.type == "update") {
+        play = isToPlay();
+
+        if (data.type == "update" 
+            && !waitList.includes(data.playerId) 
+            && play
+            && data.playerId == players[turn % 2]) {
+
             pairIndex.push(data.dotIndex);
 
             let newGameState = updateGameState(pairIndex, data.gameState);
@@ -106,23 +137,56 @@ server.on('connection', function connection(ws) {
             if (newGameState != undefined) {
                 broadcast({
                     type: "updated",
-                    turn: players[turn % 2],
+                    playerId: players[(turn+1) % 2],
                     gameState: newGameState,
                 });
 
-                pairIndex = [];
+                if (erased == 21) {
+                    broadcast({
+                        type: "end",
+                        whoWon: players[turn % 2],
+                    });
+
+                    players = [];
+                    waitList = remove([waitList[0], waitList[1]], waitList);
+
+                    erased = 0;
+                }
+
                 turn++;
+                pairIndex = [];
             }
         }
     }
+}
+
+server.on('connection', function connection(ws) { 
+    playerCount++;
+    let playerId = "player" + playerCount;
+
+    if (playerCount > 2 || waitList.includes(playerId)) {
+        console.log(playerId + " is waiting");
+
+        ws.send(JSON.stringify({
+            type: "overflow",
+            message: "Two users are already playing! Refresh the page until you connect",
+        }));
+
+        waitList.push(playerId);
+    }
+
+    else {
+        console.log(playerId + " has connected!");
+        players.push(playerId);
+
+        handlePlayer(playerId, ws);
+    }    
 
     ws.on('close', function() {
         console.log(`${playerId} has disconnected`);
-        const playerIndex = playerId.length - 1;
 
-        players.splice(playerIndex, 1);
-        playerCount--;
-
-        console.log(players);
+        players = remove([playerId], players);
     });
 });
+
+console.log("WebSocket server running on port " + port);

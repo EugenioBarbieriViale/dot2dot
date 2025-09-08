@@ -1,5 +1,4 @@
 // const ws = new WebSocket('ws://localhost:8080');
-// const ws = new WebSocket("https://858650045256.ngrok-free.app");
 const ws = new WebSocket("wss://858650045256.ngrok-free.app");
 
 canvas = document.getElementById("game");
@@ -12,8 +11,15 @@ const r = 20;
 const w = 375;
 const h = 375;
 
-let myId;
 let dots = [];
+
+let myId;
+let play;
+
+let iStart;
+let updateSent = false;
+
+let winner;
 
 
 function isToSend(dots, x, y) {
@@ -34,6 +40,7 @@ function isToSend(dots, x, y) {
 }
 
 function displayGame(dots, end) {
+    ctx.save();
     ctx.clearRect(0, 0, w, h);
 
     for (let i=0; i<dots.length; i++) {
@@ -55,10 +62,43 @@ function displayGame(dots, end) {
             ctx.fill();
         }
     }
+    ctx.restore();
 }
 
-function displayText(playerId) {
-    ctx.fillText(playerId, 130, 38);
+function displayText(isMyTurn) {
+    if (winner == undefined) {
+        if (play) {
+            switch (iStart) {
+                case 0:
+                    ctx.fillText("you start", 130, 38);
+                    break;
+                case 1:
+                    ctx.fillText("your opponent starts", 53, 38);
+                    break;
+                case 2:
+                    if (isMyTurn) {
+                        ctx.fillText("your turn", 130, 38);
+                    } else {
+                        ctx.fillText("your opponent's turn", 53, 38);
+                    }
+                    break;
+            }
+        }
+
+        else {
+            ctx.fillText("waiting for an opponent", 43, 38);
+        }
+    }
+
+    else {
+        if (myId == winner) {
+            ctx.fillText("you won", 130, 38);
+        }
+        else {
+            ctx.fillText("you lost", 130, 38);
+        }
+    }
+
     ctx.fillText("dot2dot", 260, 350);
 }
 
@@ -68,29 +108,43 @@ ws.onopen = function(event) {
 
 ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
+    let isMyTurn = false;
 
     if (data.type == "init") {
         myId = data.playerId; 
-        alert("You are " + myId);
+        // alert("You are " + myId);
 
         dots = data.gameState;
+        iStart = ((myId == data.whoMovesFirst) ? 0 : 1);
+    }
+
+    else if (data.type == "can_play") {
+        play = data.message;         
+    }
+
+    else if (data.type == "overflow") {
+        alert(data.message);
     }
 
     else if (data.type == "updated" && data.gameState != undefined) {
         dots = data.gameState;
+        isMyTurn = (myId == data.playerId);
     }
 
-    displayGame(dots, false, r);
-
-    if (data.turn != undefined) {
-        displayText(data.turn);
-    } else {
-        displayText(myId);
+    else if (data.type == "end") {
+        winner = data.whoWon;
     }
+
+    if (data.playerId == undefined) isMyTurn = true;
+
+    displayGame(dots, winner == "", r);
+    displayText(isMyTurn);
+
+    if (play) iStart = 2;
 };
 
 canvas.addEventListener("mousedown", (event) => {
-    const rect = canvas.getBoundingClientRect();
+const rect = canvas.getBoundingClientRect();
     const mouseX = event.pageX - rect.left;
     const mouseY = event.pageY - rect.top;
 
@@ -103,6 +157,8 @@ canvas.addEventListener("mousedown", (event) => {
             dotIndex: index,
             gameState: dots,
         }));
+
+        updateSent = true;
     }
 });
 
