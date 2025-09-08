@@ -112,7 +112,6 @@ ws.onmessage = function(event) {
 
     if (data.type == "init") {
         myId = data.playerId; 
-        // alert("You are " + myId);
 
         dots = data.gameState;
         iStart = ((myId == data.whoMovesFirst) ? 0 : 1);
@@ -167,5 +166,5 @@ ws.onclose = function(event) {
 };
 
 ws.onerror = function(event) {
-    console.log("Server is down");
+    alert("Server is down");
 }

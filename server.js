@@ -144,7 +144,7 @@ function handlePlayer(playerId, ws) {
                 if (erased == 21) {
                     broadcast({
                         type: "end",
-                        whoWon: players[turn % 2],
+                        whoWon: players[(turn-1) % 2],
                     });
 
                     players = [];
@@ -169,7 +169,7 @@ server.on('connection', function connection(ws) {
 
         ws.send(JSON.stringify({
             type: "overflow",
-            message: "Two users are already playing! Refresh the page until you connect",
+            message: "Two users are already playing! Refresh the page until you get connected",
         }));
 
         waitList.push(playerId);
