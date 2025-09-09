@@ -1,2 +1,2 @@
-# dot2dot-miniapp
-https://eugeniobarbieriviale.github.io/dot2dot-telegram/
+# dot2dot
+https://eugeniobarbieriviale.github.io/dot2dot/

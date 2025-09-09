@@ -6,13 +6,55 @@ const server = new WebSocket.Server({ port });
 const n  = 6;
 const r = 20;
 
+let turn = 0;
 let erased = 0;
 
 let players = [];
-let playerCount = 0;
-
 let waitList = [];
 
+
+function genPlayerId() {
+    let vowls = ["a", "e", "i", "o", "u"];
+    let time = Date.now().toString().slice(10);
+
+    let result = "";
+
+    for (let i=0; i<6; i++) {
+        result += vowls[Math.floor(Math.random() * vowls.length)]
+        result += time[i % time.length];
+    }
+    
+    return result;
+}
+
+function remove(player, array) {
+    return array.filter(item => item !== player);
+}
+
+function isToPlay() {
+    let play;
+
+    if (players.length == 2) {
+        play = true;
+    } else {
+        play = false;
+    }
+
+    broadcast({
+        type: "can_play",
+        message: play,
+    });
+
+    return play;
+}
+
+function broadcast(data) {
+    server.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+}
 
 function initDots() {
     let ans = [];
@@ -65,41 +107,6 @@ function updateGameState(pairIndex, currentGameState) {
     return newGameState;
 }
 
-function isToPlay() {
-    let play;
-
-    if (players.length == 2) {
-        play = true;
-    } else {
-        play = false;
-    }
-
-    broadcast({
-        type: "can_play",
-        message: play,
-    });
-
-    return play;
-}
-
-function broadcast(data) {
-    server.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-        }
-    });
-}
-
-function remove(playerId, array) {
-    const playerNumber = array[playerId.length - 1];
-    array.splice(playerNumber - 1, 1);
-
-    playerCount--;
-
-    return array;
-}
-
-let turn = 0;
 function handlePlayer(playerId, ws) {
 
     let dots = initDots();
@@ -142,12 +149,12 @@ function handlePlayer(playerId, ws) {
                         whoWon: players[(turn-1) % 2],
                     });
 
-                    players = [];
-
                     waitList = remove(waitList[0], waitList);
                     waitList = remove(waitList[1], waitList);
 
+                    players = [];
                     erased = 0;
+                    turn = -1;
                 }
 
                 turn++;
@@ -158,10 +165,9 @@ function handlePlayer(playerId, ws) {
 }
 
 server.on('connection', function connection(ws) { 
-    playerCount++;
-    let playerId = "player" + playerCount;
+    let playerId = genPlayerId();
 
-    if (playerCount > 2 || waitList.includes(playerId)) {
+    if (players.length+1 > 2 || waitList.includes(playerId)) {
         console.log(playerId + " is waiting");
 
         ws.send(JSON.stringify({
@@ -181,7 +187,6 @@ server.on('connection', function connection(ws) {
 
     ws.on('close', function() {
         console.log(`${playerId} has disconnected`);
-
         players = remove(playerId, players);
     });
 });
