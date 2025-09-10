@@ -12,4 +12,5 @@ https://eugeniobarbieriviale.github.io/dot2dot/
 
 ## Update
 A neural network that can play this game is currently under development
+
 https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
