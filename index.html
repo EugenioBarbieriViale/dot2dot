@@ -2,8 +2,30 @@
 <html>
     <head>
         <title>Dot2Dot</title>
-        <link rel="stylesheet" href="index.css" />
-        <script src="client.js" defer></script>
+        <style>
+            html,
+            body {
+              height: 100%;
+            }
+
+            body,
+            .container {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+            .container {
+              position: relative;
+              font-family: Helvetica;
+            }
+
+            canvas {
+              border: 1px solid;
+            }
+        </style>
+
+        <script src="public/client.js" defer></script>
     </head>
 
     <body>

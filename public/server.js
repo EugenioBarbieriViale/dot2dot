@@ -32,13 +32,7 @@ function remove(player, array) {
 }
 
 function isToPlay() {
-    let play;
-
-    if (players.length == 2) {
-        play = true;
-    } else {
-        play = false;
-    }
+    let play = players.length == 2;
 
     broadcast({
         type: "can_play",
@@ -108,7 +102,6 @@ function updateGameState(pairIndex, currentGameState) {
 }
 
 function handlePlayer(playerId, ws) {
-
     let dots = initDots();
     let pairIndex = [];
     let play = false;
@@ -167,7 +160,7 @@ function handlePlayer(playerId, ws) {
 server.on('connection', function connection(ws) { 
     let playerId = genPlayerId();
 
-    if (players.length+1 > 2 || waitList.includes(playerId)) {
+    if (players.length+1 > 2) {
         console.log(playerId + " is waiting");
 
         ws.send(JSON.stringify({
@@ -175,7 +168,9 @@ server.on('connection', function connection(ws) {
             message: "Two users are already playing! Refresh the page until you get connected",
         }));
 
-        waitList.push(playerId);
+        if (!waitList.includes(playerId)) {
+            waitList.push(playerId);
+        }
     }
 
     else {
