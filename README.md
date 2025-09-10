@@ -1,5 +1,5 @@
 # dot2dot
-Fun game written that you can play with anyone! The WebSocket server is my personal computer, for this reason it will hardly be possible to play.
+Fun game that you can play with anyone! The WebSocket server is my personal computer, for this reason it will hardly be running.
 
 ## How to play
 - you can erase dots only in rows

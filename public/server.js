@@ -60,7 +60,7 @@ function initDots() {
             let x = 40 + (2 * r + 20) * j;
             let y = 85 + (2 * r + 10) * i;
             
-            ans.push([x, y, false, c, false]);
+            ans.push([x, y, false, c]);
             c++;
         }
     }

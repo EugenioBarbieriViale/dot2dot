@@ -1,5 +1,5 @@
-// const ws = new WebSocket('ws://localhost:8080');
-const ws = new WebSocket("wss://62750262a593.ngrok-free.app");
+const ws = new WebSocket('ws://localhost:8080');
+// const ws = new WebSocket("wss://62750262a593.ngrok-free.app");
 
 canvas = document.getElementById("game");
 canvas.style.background = "white";
@@ -47,14 +47,10 @@ function displayGame(dots, end) {
         let dot = dots[i];
 
         if (!end) {
-            if (!dot[2] && !dot[4]) {
-                ctx.fillStyle = "black";
-            }
-            else if (dot[2]) {
+            if (dot[2]) {
                 ctx.fillStyle = "white";
-            }
-            else {
-                ctx.fillStyle = "grey";
+            } else {
+                ctx.fillStyle = "black";
             }
 
             ctx.beginPath();
