@@ -1,5 +1,5 @@
 // const ws = new WebSocket('ws://localhost:8080');
-const ws = new WebSocket("wss://4d7439f16e7e.ngrok-free.app");
+const ws = new WebSocket("wss://586f320ef572.ngrok-free.app");
 
 canvas = document.getElementById("game");
 canvas.style.background = "white";
